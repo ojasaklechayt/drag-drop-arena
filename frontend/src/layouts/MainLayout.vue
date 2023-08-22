@@ -8,11 +8,11 @@
             <template v-slot:before>
               <div class="content-container">
                 <div class="section-header">Before</div>
-                <template  v-for="(nestedArray, index) in dummy" :key="index">
-                  <template v-for="(item, nestedIndex) in nestedArray" :key="nestedIndex">
-                    <q-btn class="nested-button">{{ item }}</q-btn>
-                  </template>
-                </template>
+                <div class="button-header"><template v-for="(nestedArray, index) in dummy" :key="index">
+                    <template v-for="(item, nestedIndex) in nestedArray" :key="nestedIndex">
+                      <q-btn class="nested-button" color="primary" dense rounded>{{ item }}</q-btn>
+                    </template>
+                  </template></div>
               </div>
             </template>
             <template v-slot:after>
@@ -107,5 +107,17 @@ export default defineComponent({
 
 .data-button {
   margin-bottom: 1%;
+}
+
+.button-header {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 20px;
+}
+
+.nested-button {
+  margin: 10px;
+  font-size: 0.8rem;
+  text-transform: lowercase;
 }
 </style>
