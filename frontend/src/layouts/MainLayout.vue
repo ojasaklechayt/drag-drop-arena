@@ -11,7 +11,7 @@
                 <div class="section-header">Before</div>
                 <draggable v-model="buttonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
                   <template #item="{ element: first }">
-                    <q-btn class="nested-button" color="primary" dense rounded>{{ first.name }}</q-btn>
+                    <q-btn class="nested-button" color="primary" dense rounded square>{{ first.name }}</q-btn>
                   </template>
                 </draggable>
               </div>
@@ -23,7 +23,7 @@
                 <div class="section-header">After</div>
                 <draggable v-model="reorderedButtonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
                   <template #item="{ element: second }">
-                    <q-btn class="nested-button" color="primary" dense rounded>{{ second.name }}</q-btn>
+                    <q-btn class="nested-button" color="primary" dense rounded square>{{ second.name }}</q-btn>
                   </template>
                 </draggable>
               </div>
