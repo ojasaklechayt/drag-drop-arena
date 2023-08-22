@@ -3,26 +3,29 @@
     <q-page-container>
       <div id="q-app" class="app-container">
         <div id="q-inner" class="inner-container">
-          <q-btn class="data-button" color="primary" @click="fetchdata">Get Data</q-btn>
+          <q-btn class="data-button" color="primary" @click="fetchAndPopulateData">Get Data</q-btn>
           <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
+            <!-- Before Splitter Content -->
             <template v-slot:before>
               <div class="content-container">
                 <div class="section-header">Before</div>
-                <div class="button-header"><template v-for="(nestedArray, index) in dummy" :key="index">
-                    <template v-for="(item, nestedIndex) in nestedArray" :key="nestedIndex">
-                      <q-btn class="nested-button" color="primary" dense rounded>{{ item }}</q-btn>
-                    </template>
-                  </template></div>
+                <draggable v-model="buttonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
+                  <template #item="{ element: first }">
+                    <q-btn class="nested-button" color="primary" dense rounded>{{ first.name }}</q-btn>
+                  </template>
+                </draggable>
               </div>
             </template>
+
+            <!-- After Splitter Content -->
             <template v-slot:after>
               <div class="content-container">
                 <div class="section-header">After</div>
-                <div v-for="n in 20" :key="n" class="section-content">
-                  {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio
-                  iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla
-                  ullam. In, libero.
-                </div>
+                <draggable v-model="reorderedButtonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
+                  <template #item="{ element: second }">
+                    <q-btn class="nested-button" color="primary" dense rounded>{{ second.name }}</q-btn>
+                  </template>
+                </draggable>
               </div>
             </template>
           </q-splitter>
@@ -36,14 +39,10 @@
 import { defineComponent, ref } from 'vue';
 import { QSplitter, QBtn } from 'quasar';
 import axios from 'axios';
+import draggable from 'vuedraggable';
 
 export default defineComponent({
   name: 'MainLayout',
-  data() {
-    return {
-      dummy: [],
-    };
-  },
   setup() {
     const splitterModel = ref(50);
     const splitterStyles = {
@@ -51,24 +50,46 @@ export default defineComponent({
       width: '600px',
     };
 
+    const buttonData = ref([]);
+    const reorderedButtonData = ref([]);
+    const drag = ref(false);
+
+    const fetchAndPopulateData = async () => {
+      try {
+        const dataResponse = await axios.get('http://localhost:3000/data/getdata');
+        const data = dataResponse.data;
+
+        // Flatten the nested data structure
+        buttonData.value = data.flatMap((nestedArray, i) => nestedArray.map((item, j) => ({ id: `${i}-${j}`, name: item })));
+        reorderedButtonData.value = [...buttonData.value];
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const onDragStart = () => {
+      drag.value = true;
+    };
+
+    const onDragEnd = () => {
+      drag.value = false;
+    };
+
     return {
       splitterModel,
       splitterStyles,
+      buttonData,
+      reorderedButtonData,
+      drag,
+      fetchAndPopulateData,
+      onDragStart,
+      onDragEnd,
     };
   },
   components: {
     QSplitter,
     QBtn,
-  },
-  methods: {
-    async fetchdata() {
-      const dataResponse = await axios.get('http://localhost:3000/data/getdata');
-      this.dummy = dataResponse.data;
-      console.log(this.dummy);
-    },
-    handleButtonClick(item) {
-      console.log('Button clicked:', item);
-    },
+    draggable,
   },
 });
 </script>
