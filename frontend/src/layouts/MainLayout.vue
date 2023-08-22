@@ -8,12 +8,11 @@
             <template v-slot:before>
               <div class="content-container">
                 <div class="section-header">Before</div>
-                <q-btn
-                  v-for="(item, index) in dummy"
-                  :key="index+1"
-                  class="section-content"
-                  @click="handleButtonClick(item)"
-                >{{ createButtonLabel(dummy[index]) }}</q-btn>
+                <template  v-for="(nestedArray, index) in dummy" :key="index">
+                  <template v-for="(item, nestedIndex) in nestedArray" :key="nestedIndex">
+                    <q-btn class="nested-button">{{ item }}</q-btn>
+                  </template>
+                </template>
               </div>
             </template>
             <template v-slot:after>
@@ -69,13 +68,6 @@ export default defineComponent({
     },
     handleButtonClick(item) {
       console.log('Button clicked:', item);
-    },
-    createButtonLabel(item) {
-      if (item) {
-        return `Name: ${item.firstname} ${item.lastname}, Age: ${item.age}, Country: ${item.country}`;
-      }
-      return '';
-      
     },
   },
 });
