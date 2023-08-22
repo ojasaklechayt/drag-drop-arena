@@ -3,17 +3,22 @@
     <q-page-container>
       <div id="q-app" class="app-container">
         <div id="q-inner" class="inner-container">
-          <q-btn class="data-button" color="primary" @click="fetchAndPopulateData">Get Data</q-btn>
+          <div class="action-button">
+            <q-btn class="data-button" color="primary" @click="fetchAndPopulateData">Get Data</q-btn>
+            <q-btn class="data-button" color="primary" @click="exportCSV">Export CSV</q-btn>
+          </div>
           <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
             <!-- Before Splitter Content -->
             <template v-slot:before>
               <div class="content-container">
                 <div class="section-header">Before</div>
-                <draggable v-model="buttonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
-                  <template #item="{ element: first }">
-                    <q-btn class="nested-button" color="primary" dense rounded square>{{ first.name }}</q-btn>
-                  </template>
-                </draggable>
+                <div class="buttons-design">
+                  <draggable v-model="buttonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
+                    <template #item="{ element: first }">
+                      <q-btn class="nested-button" color="primary" dense square>{{ first.name }}</q-btn>
+                    </template>
+                  </draggable>
+                </div>
               </div>
             </template>
 
@@ -21,11 +26,14 @@
             <template v-slot:after>
               <div class="content-container">
                 <div class="section-header">After</div>
-                <draggable v-model="reorderedButtonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
-                  <template #item="{ element: second }">
-                    <q-btn class="nested-button" color="primary" dense rounded square>{{ second.name }}</q-btn>
-                  </template>
-                </draggable>
+                <div class="button-design">
+                  <draggable v-model="reorderedButtonData" group="people" @start="onDragStart" @end="onDragEnd"
+                    item-key="id">
+                    <template #item="{ element: second }">
+                      <q-btn class="nested-button" color="primary" dense square>{{ second.name }}</q-btn>
+                    </template>
+                  </draggable>
+                </div>
               </div>
             </template>
           </q-splitter>
@@ -53,19 +61,33 @@ export default defineComponent({
     const buttonData = ref([]);
     const reorderedButtonData = ref([]);
     const drag = ref(false);
+    const arrayreference = ref([]);
 
     const fetchAndPopulateData = async () => {
       try {
         const dataResponse = await axios.get('http://localhost:3000/data/getdata');
         const data = dataResponse.data;
-
-        // Flatten the nested data structure
+        reorderedButtonData.value = [];
         buttonData.value = data.flatMap((nestedArray, i) => nestedArray.map((item, j) => ({ id: `${i}-${j}`, name: item })));
-        reorderedButtonData.value = [...buttonData.value];
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
+
+    const exportCSV = () => {
+      arrayreference.value = []
+      for(let i of reorderedButtonData.value){
+        arrayreference.value.push(i.name);
+      }
+      const csv = arrayreference.value.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rearranged-data.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);         
+    }
 
     const onDragStart = () => {
       drag.value = true;
@@ -84,6 +106,7 @@ export default defineComponent({
       fetchAndPopulateData,
       onDragStart,
       onDragEnd,
+      exportCSV
     };
   },
   components: {
@@ -93,6 +116,7 @@ export default defineComponent({
   },
 });
 </script>
+
 
 <style>
 .app-container {
@@ -119,7 +143,8 @@ export default defineComponent({
 
 .section-header {
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  z-index: -1;
 }
 
 .section-content {
@@ -140,5 +165,18 @@ export default defineComponent({
   margin: 10px;
   font-size: 0.8rem;
   text-transform: lowercase;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  margin-left: 10%;
+}
+
+.action-button{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 600px;
+  gap: 10%;
+  margin-bottom: 10px;
 }
 </style>
