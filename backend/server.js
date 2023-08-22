@@ -1,13 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const env = require('dotenv').config();
 const dataRouter = require('./routes/data-router');
 const app = express();
 const port = 3000;
 
+const Mongodb_Link = process.env.MONGODB_LINK;
+
 async function main() {
     try {
-        await mongoose.connect("mongodb://localhost:27017/datas", {
+        await mongoose.connect(Mongodb_Link, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
