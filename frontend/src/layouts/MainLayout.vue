@@ -65,7 +65,7 @@ export default defineComponent({
 
     const fetchAndPopulateData = async () => {
       try {
-        const dataResponse = await axios.get('http://localhost:3000/data/getdata');
+        const dataResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/data/getdata');
         const data = dataResponse.data;
         reorderedButtonData.value = [];
         buttonData.value = data.flatMap((nestedArray, i) => nestedArray.map((item, j) => ({ id: `${i}-${j}`, name: item })));
