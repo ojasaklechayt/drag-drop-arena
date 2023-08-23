@@ -10,7 +10,7 @@ const Mongodb_Link = process.env.MONGODB_LINK;
 
 async function main() {
     try {
-        await mongoose.connect(Mongodb_Link, {
+        await mongoose.connect("mongodb+srv://ojasaklechayt:sdtb2TZpGeHZFetp@cluster0.hjephix.mongodb.net/?retryWrites=true&w=majority", {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
