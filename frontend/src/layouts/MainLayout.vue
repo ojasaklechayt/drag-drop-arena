@@ -15,7 +15,7 @@
                 <div class="buttons-design">
                   <draggable v-model="buttonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
                     <template #item="{ element: first }">
-                      <q-btn class="nested-button" color="primary" dense square>{{ first.name }}</q-btn>
+                      <q-btn class="nested-button" color="primary" dense square>{{ first }}</q-btn>
                     </template>
                   </draggable>
                 </div>
@@ -30,7 +30,7 @@
                   <draggable v-model="reorderedButtonData" group="people" @start="onDragStart" @end="onDragEnd"
                     item-key="id">
                     <template #item="{ element: second }">
-                      <q-btn class="nested-button" color="primary" dense square>{{ second.name }}</q-btn>
+                      <q-btn class="nested-button" color="primary" dense square>{{ second }}</q-btn>
                     </template>
                   </draggable>
                 </div>
@@ -62,32 +62,75 @@ export default defineComponent({
     const reorderedButtonData = ref([]);
     const drag = ref(false);
     const arrayreference = ref([]);
+    const exportingdata = ref({});
+    const gotresponse = ref({});
 
     const fetchAndPopulateData = async () => {
       try {
         const dataResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/data/getdata');
         const data = dataResponse.data;
-        reorderedButtonData.value = [];
-        buttonData.value = data.flatMap((nestedArray, i) => nestedArray.map((item, j) => ({ id: `${i}-${j}`, name: item })));
+        buttonData.value = data;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    const exportCSV = () => {
-      arrayreference.value = []
-      for(let i of reorderedButtonData.value){
-        arrayreference.value.push(i.name);
+    const sendRequest = async () => {
+      try {
+        exportingdata.value = {};
+        gotresponse.value = {};
+
+        for (const item of reorderedButtonData.value) {
+          exportingdata.value[item] = 1;
+        }
+
+        const response = await axios({
+          method: "post",
+          url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
+          data: exportingdata.value,
+          headers: { "Content-Type": "application/json" }
+        });
+
+        if (response.status === 200) {
+          gotresponse.value = response.data;
+          for (const key in gotresponse.value[0]) {
+            exportingdata.value[key] = gotresponse.value.map(item => item[key]);
+          }
+        } else {
+          console.error('Non-200 status received:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-      const csv = arrayreference.value.join('\n');
+    };
+
+    const exportCSV = async () => {
+      await sendRequest();
+
+      const csvRows = [];
+      const fieldNames = Object.keys(exportingdata.value);
+
+      // Push the header row to the CSV
+      csvRows.push(fieldNames.join(','));
+
+      // Push the data rows to the CSV
+      for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
+        const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
+        csvRows.push(rowData.join(','));
+      }
+
+      const csv = csvRows.join('\n');
+
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'rearranged-data.csv';
       a.click();
-      window.URL.revokeObjectURL(url);         
-    }
+      window.URL.revokeObjectURL(url);
+    };
+
+
 
     const onDragStart = () => {
       drag.value = true;
@@ -134,18 +177,17 @@ export default defineComponent({
 
 .splitter {
   border: 1px solid #ccc;
+  background-color: #fff;
 }
 
 .content-container {
   padding: 10px;
-  background-color: #fff;
-  z-index: -1;
+  z-index: 1;
 }
 
 .section-header {
   font-weight: bold;
   margin-bottom: 20px;
-  z-index: -1;
 }
 
 .section-content {
@@ -160,6 +202,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   margin: 20px 20px;
+  z-index: 1;
 }
 
 .nested-button {
@@ -172,7 +215,7 @@ export default defineComponent({
   margin-left: 10%;
 }
 
-.action-button{
+.action-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
