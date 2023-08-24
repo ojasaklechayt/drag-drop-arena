@@ -68,7 +68,6 @@ export default defineComponent({
     const drag = ref(false);
     const exportingdata = ref({});
     const gotresponse = ref({});
-
     const columnTitles = ref([]);
 
     const fetchAndPopulateData = async () => {

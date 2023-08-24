@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const env = require('dotenv').config();
 const dataRouter = require('./routes/data-router');
+const templateRouter = require('./routes/template-router');
 const app = express();
 const port = 3000;
 
@@ -26,10 +27,7 @@ app.use(express.json());
 app.use(cors())
 
 app.use("/data",cors(), dataRouter);
-
-app.get('/',cors(), (req, res) => {
-    res.send("Hello World");
-});
+app.use('/',cors(), templateRouter);
 
 app.listen(port, () => {
     console.log("Connected to the server at the port:", port);
