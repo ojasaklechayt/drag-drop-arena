@@ -5,7 +5,7 @@ const createTemplate = async (req, res) => {
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
         const newTemplate = new Template({ name, leftlabels, rightdata, rightlabels, righttitle });
         await newTemplate.save();
-        res.status(201).json(newTemplate);
+        res.status(201).send({ message: "Template Saved Successfully", template: newTemplate });
     } catch (error) {
         console.error("Error creating template:", error);
         res.status(500).send("Error creating template");

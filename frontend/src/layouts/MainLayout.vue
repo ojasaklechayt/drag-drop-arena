@@ -4,8 +4,10 @@
       <div id="q-app" class="app-container">
         <div id="q-inner" class="inner-container">
           <div class="action-button">
+            <q-btn class="route-button" color="primary"><router-link to="/" class="button-link">Home</router-link></q-btn>
+            <q-input filled v-model="text" label="Template Name"></q-input>
             <q-btn class="data-button" color="primary" @click="fetchAndPopulateData">Get Data</q-btn>
-            <q-btn class="data-button" color="primary" @click="exportCSV">Export CSV</q-btn>
+            <q-btn class="data-button" color="primary" @click="saveTemplate">Save Template</q-btn>
           </div>
           <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
             <!-- Before Splitter Content -->
@@ -69,6 +71,8 @@ export default defineComponent({
     const exportingdata = ref({});
     const gotresponse = ref({});
     const columnTitles = ref([]);
+    const Templateobject = ref({});
+    const text = ref('');
 
     const fetchAndPopulateData = async () => {
       try {
@@ -79,6 +83,29 @@ export default defineComponent({
         console.error('Error fetching data:', error);
       }
     };
+
+    const saveTemplate = async () => {
+      try {
+        Templateobject.value = {
+          'name': text.value,
+          'leftlabels': buttonData.value,
+          'rightdata': exportingdata.value,
+          'rightlabels': columnTitles.value,
+          'righttitle': reorderedButtonData.value
+        };
+        console.log(Templateobject.value);
+        const save = await axios({
+          method: "post",
+          url: "https://drag-drop-arena-backend-mb5m.onrender.com/templates",
+          data: Templateobject.value,
+          headers: { "Content-Type": "application/json" }
+        });
+
+        console.log('Server Response:', save.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
 
     const sendRequest = async () => {
       try {
@@ -154,6 +181,8 @@ export default defineComponent({
       onDragEnd,
       exportCSV,
       columnTitles,
+      saveTemplate,
+      text
     };
   },
   components: {
@@ -226,7 +255,7 @@ export default defineComponent({
   flex-direction: row;
   justify-content: center;
   width: 600px;
-  gap: 10%;
+  gap: 2%;
   margin-bottom: 10px;
 }
 
@@ -238,4 +267,8 @@ export default defineComponent({
 .nested-input {
   margin-bottom: 10px;
 }
-</style>
+.button-link {
+  color: #fff;
+  text-decoration: none;
+}
+</style>  
