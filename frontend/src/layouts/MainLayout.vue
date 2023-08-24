@@ -12,8 +12,9 @@
             <template v-slot:before>
               <div class="content-container">
                 <div class="section-header">Before</div>
-                <div class="buttons-design">
-                  <draggable v-model="buttonData" group="people" @start="onDragStart" @end="onDragEnd" item-key="id">
+                <div>
+                  <draggable class="button-design" v-model="buttonData" group="people" @start="onDragStart"
+                    @end="onDragEnd" item-key="id">
                     <template #item="{ element: first }">
                       <q-btn class="nested-button" color="primary" dense square>{{ first }}</q-btn>
                     </template>
@@ -26,11 +27,15 @@
             <template v-slot:after>
               <div class="content-container">
                 <div class="section-header">After</div>
-                <div class="button-design">
-                  <draggable v-model="reorderedButtonData" group="people" @start="onDragStart" @end="onDragEnd"
-                    item-key="id">
-                    <template #item="{ element: second }">
-                      <q-btn class="nested-button" color="primary" dense square>{{ second }}</q-btn>
+                <div>
+                  <draggable class="button-design" v-model="reorderedButtonData" group="people" @start="onDragStart"
+                    @end="onDragEnd" item-key="id">
+                    <template #item="{ element: second, index }">
+                      <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;">
+                        <q-input class="nested-input" label-color="white" sm bg-color="primary" color="white" square
+                          outlined v-model="columnTitles[index]" :label="second"
+                          style="width:200px; height: 30px; text-align: center;"></q-input>
+                      </div>
                     </template>
                   </draggable>
                 </div>
@@ -61,9 +66,10 @@ export default defineComponent({
     const buttonData = ref([]);
     const reorderedButtonData = ref([]);
     const drag = ref(false);
-    const arrayreference = ref([]);
     const exportingdata = ref({});
     const gotresponse = ref({});
+
+    const columnTitles = ref([]);
 
     const fetchAndPopulateData = async () => {
       try {
@@ -110,10 +116,10 @@ export default defineComponent({
       const csvRows = [];
       const fieldNames = Object.keys(exportingdata.value);
 
-      // Push the header row to the CSV
-      csvRows.push(fieldNames.join(','));
+      const headerRow = fieldNames.map((fieldName, index) => columnTitles.value[index] || reorderedButtonData.value[index]);
 
-      // Push the data rows to the CSV
+      csvRows.push(headerRow.join(','));
+
       for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
         const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
         csvRows.push(rowData.join(','));
@@ -129,8 +135,6 @@ export default defineComponent({
       a.click();
       window.URL.revokeObjectURL(url);
     };
-
-
 
     const onDragStart = () => {
       drag.value = true;
@@ -149,7 +153,8 @@ export default defineComponent({
       fetchAndPopulateData,
       onDragStart,
       onDragEnd,
-      exportCSV
+      exportCSV,
+      columnTitles,
     };
   },
   components: {
@@ -159,7 +164,6 @@ export default defineComponent({
   },
 });
 </script>
-
 
 <style>
 .app-container {
@@ -207,12 +211,15 @@ export default defineComponent({
 
 .nested-button {
   margin: 10px;
-  font-size: 0.8rem;
+  font-size: 16px;
   text-transform: lowercase;
   display: flex;
   flex-direction: column;
   width: 200px;
   margin-left: 10%;
+  height: 55px;
+  border: 0.5px solid black;
+
 }
 
 .action-button {
@@ -221,6 +228,15 @@ export default defineComponent({
   justify-content: center;
   width: 600px;
   gap: 10%;
+  margin-bottom: 10px;
+}
+
+.button-design {
+  height: 335px;
+  padding-bottom: 535px;
+}
+
+.nested-input {
   margin-bottom: 10px;
 }
 </style>
