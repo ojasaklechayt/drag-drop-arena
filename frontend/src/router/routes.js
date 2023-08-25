@@ -1,3 +1,4 @@
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
@@ -9,8 +10,12 @@ const routes = [
     path: '/',
     component: () => import('layouts/FrontLayout.vue'),
   },
-  // Always leave this as last one,
-  // but you can also remove it
+  {
+    path: '/template/:id',
+    name: 'specific-template',
+    component: () => import('layouts/SpecificLayout.vue'),
+    props: true,
+  },
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue')

@@ -2,28 +2,33 @@
     <q-layout view="lHh Lpr lFf">
         <q-page-container>
             <div id="q-app" class="app-container">
-                <div class="heading"><h2>Data Templates</h2></div>
+                <div class="heading">
+                    <h2>Data Templates</h2>
+                </div>
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
-                        <q-btn class="data-button" color="primary"><router-link to="/template"
-                                class="button-link">Create New Template</router-link></q-btn>
+                        <q-btn class="data-button" color="primary">
+                            <router-link to="/template" class="button-link">Create New Template</router-link>
+                        </q-btn>
                     </div>
                     <div class="all-templates">
-                        <div v-for="(templateItem, index) in template" :key="index" dense flat class="template-button">
-                            <div class="template-label">{{ templateItem.name }}</div>
-                            <div class="template-trash">
-                                <font-awesome-icon icon="trash" />
-                            </div>
-                            <div class="template-pen">
-                                <font-awesome-icon icon="pen" />
-                            </div>
-                        </div>
+                        <q-btn v-for="(templateItem) in template" :key="templateItem._id" dense flat class="template-button">
+                            <router-link :to="'/template/' + templateItem._id">
+                                <div class="template-label">{{ templateItem.name }}</div>
+                                <div class="template-trash">
+                                    <font-awesome-icon icon="trash" />
+                                </div>
+                                <div class="template-pen">
+                                    <font-awesome-icon icon="pen" />
+                                </div>
+                            </router-link>
+                        </q-btn>
                     </div>
                 </div>
             </div>
         </q-page-container>
     </q-layout>
-</template> 
+</template>
 
 <script>
 import { defineComponent, ref, onMounted } from 'vue';
@@ -36,7 +41,7 @@ import { faTrash, faPen, faUserSecret } from '@fortawesome/free-solid-svg-icons'
 library.add(faTrash, faPen, faUserSecret);
 
 export default defineComponent({
-    name: 'MainLayout',
+    name: 'FrontLayout',
     setup() {
         const buttonData = ref([]);
         const text = ref('');
@@ -52,26 +57,35 @@ export default defineComponent({
             }
         };
 
-        const fetchalltemplates = async () => {
+        const fetchAllTemplates = async () => {
             try {
                 const templateResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/templates');
                 const templates = templateResponse.data;
                 template.value = templates;
                 console.log(template.value);
             } catch (error) {
-                console.error("Error fetching templates: ", error);
+                console.error('Error fetching templates: ', error);
             }
-        }
+        };
+
+        const gotoSpecificTemplate = (templateId) => {
+            try {
+                router.push({ name: 'specific-template', params: { id: templateId } });
+            } catch (error) {
+                console.error('There is some error: ', error);
+            }
+        };
 
         onMounted(() => {
-            fetchalltemplates();
+            fetchAllTemplates();
         });
 
         return {
             fetchAndPopulateData,
-            fetchalltemplates,
+            fetchAllTemplates,
+            gotoSpecificTemplate,
             template,
-            text
+            text,
         };
     },
     components: {
@@ -80,14 +94,14 @@ export default defineComponent({
 });
 </script>
 
-
-<style>
+  
+<style scoped>
 .app-container {
     background-color: #f2f2f2;
     padding: 20px;
 }
 
-.heading{
+.heading {
     display: flex;
     justify-content: center;
     margin-top: 5%;
@@ -135,7 +149,6 @@ export default defineComponent({
     margin-left: 10%;
     height: 55px;
     border: 0.5px solid black;
-
 }
 
 .action-button {
@@ -166,6 +179,7 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-direction: row;
     margin-bottom: 10px;
     padding: 20px;
     border: 2px solid #ccc;
