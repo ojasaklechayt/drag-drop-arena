@@ -7,27 +7,29 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-input filled label="Template Name"></q-input>
-                        <q-btn class="data-button" color="primary">Get Data</q-btn>
-                        <q-btn class="data-button" color="primary">Save Template</q-btn>
+                        <q-btn class="button-link" color="primary">Export CSV</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
                         <template v-slot:before>
                             <div class="content-container">
                                 <div class="section-header">Before</div>
-                                <div>
-                                    <!-- Content that was inside the first draggable goes here -->
+                                <div v-for="(item, index) in template.leftlabels" :key="index">
+                                    <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
                                 </div>
                             </div>
                         </template>
+
+
 
                         <!-- After Splitter Content -->
                         <template v-slot:after>
                             <div class="content-container">
                                 <div class="section-header">After</div>
                                 <div>
-                                    <!-- Content that was inside the second draggable goes here -->
+                                    <div v-for="(item, index) in template.righttitle" :key="index">
+                                        <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -44,7 +46,7 @@ import { QSplitter, QBtn, QInput } from 'quasar';
 import axios from 'axios';
 
 export default defineComponent({
-    props:{
+    props: {
         id: String
     },
     setup(props) {
@@ -58,15 +60,71 @@ export default defineComponent({
         const fetchDataandID = async () => {
             try {
                 const dataResponse = await axios({
-                    method:'get',
-                    url:`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
+                    method: 'get',
+                    url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
                 })
                 const data = dataResponse.data;
                 template.value = data;
                 console.log(template.value);
+                console.log(template.value.leftlabels);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
+        };
+
+        const sendRequest = async () => {
+            try {
+                exportingdata.value = {};
+                gotresponse.value = {};
+
+                for (const item of reorderedButtonData.value) {
+                    exportingdata.value[item] = 1;
+                }
+
+                const response = await axios({
+                    method: "post",
+                    url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
+                    data: exportingdata.value,
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (response.status === 200) {
+                    gotresponse.value = response.data;
+                    for (const key in gotresponse.value[0]) {
+                        exportingdata.value[key] = gotresponse.value.map(item => item[key]);
+                    }
+                } else {
+                    console.error('Non-200 status received:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        const exportCSV = async () => {
+            await sendRequest();
+
+            const csvRows = [];
+            const fieldNames = Object.keys(exportingdata.value);
+
+            const headerRow = fieldNames.map((fieldName, index) => template.value.rightlabels[index] || template.value.righttitle[index]);
+
+            csvRows.push(headerRow.join(','));
+
+            for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
+                const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
+                csvRows.push(rowData.join(','));
+            }
+
+            const csv = csvRows.join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'rearranged-data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
         };
 
         onMounted(() => {
@@ -77,13 +135,17 @@ export default defineComponent({
             splitterModel,
             splitterStyles,
             fetchDataandID,
+            template,
+            exportCSV
         };
     },
     components: {
         QSplitter,
         QBtn,
-        QInput,
     },
+    computed: {
+    },
+
 });
 </script>
 
