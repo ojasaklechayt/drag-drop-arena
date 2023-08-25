@@ -12,16 +12,19 @@
                         </q-btn>
                     </div>
                     <div class="all-templates">
-                        <q-btn v-for="(templateItem) in template" :key="templateItem._id" dense flat class="template-button">
-                            <router-link :to="'/template/' + templateItem._id">
-                                <div class="template-label">{{ templateItem.name }}</div>
-                                <div class="template-trash">
-                                    <font-awesome-icon icon="trash" />
+                        <q-btn v-for="(templateItem) in template" :key="templateItem._id" dense flat
+                            class="template-button">
+                            <div class="template-link">
+                                <div class="template-label">
+                                    <router-link :to="'/template/' + templateItem._id">
+                                    <div style="text-decoration: none;">{{ templateItem.name}}</div>
+                                    </router-link>
                                 </div>
-                                <div class="template-pen">
-                                    <font-awesome-icon icon="pen" />
+                                <div class="template-icons">
+                                    <font-awesome-icon icon="trash" class="template-icon template-trash" />
+                                    <font-awesome-icon icon="pen" class="template-icon template-pen" />
                                 </div>
-                            </router-link>
+                            </div>
                         </q-btn>
                     </div>
                 </div>
@@ -94,7 +97,7 @@ export default defineComponent({
 });
 </script>
 
-  
+
 <style scoped>
 .app-container {
     background-color: #f2f2f2;
@@ -111,123 +114,79 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 520px;
-}
-
-.content-container {
-    padding: 10px;
-    z-index: 1;
-}
-
-.section-header {
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.section-content {
-    margin-bottom: 8px;
-}
-
-.data-button {
-    margin-bottom: 1%;
-}
-
-.button-header {
-    display: flex;
-    flex-direction: column;
-    margin: 20px 20px;
-    z-index: 1;
-}
-
-.nested-button {
-    margin: 10px;
-    font-size: 16px;
-    text-transform: lowercase;
-    display: flex;
-    flex-direction: column;
-    width: 200px;
-    margin-left: 10%;
-    height: 55px;
-    border: 0.5px solid black;
+    min-height: 520px;
 }
 
 .action-button {
     display: flex;
-    flex-direction: row;
     justify-content: center;
-    width: 600px;
-    gap: 10%;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
-.button-design {
-    height: 335px;
-    padding-bottom: 535px;
-}
-
-.nested-input {
-    margin-bottom: 10px;
+.data-button {
+    width: 100%;
 }
 
 .all-templates {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 30%;
 }
 
 .template-button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-direction: row;
     margin-bottom: 10px;
     padding: 20px;
     border: 2px solid #ccc;
-    background-color: #fff;
-    border-radius: 15px;
-    width: 300%;
-    gap: 5%;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    width: 100%;
 }
 
 .template-button:hover {
     cursor: pointer;
 }
 
+.template-link {
+    width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    text-decoration: none;
+    color: #333;
+}
+
 .template-label {
-    flex: 1;
-    margin-right: 10px;
+    display: flex;
+    align-items: start;
+    justify-content: flex-start;
+    margin-right: 150px;
+    font-weight: bold;
+    text-decoration: none;
 }
 
-.template-trash {
+.template-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.template-icon {
     cursor: pointer;
-    color: rgb(6, 5, 5);
-    border: 1px solid #ccc;
-    padding: 0 4px;
-    border-radius: 5px;
+    font-size: 18px;
+    color: #333;
+    transition: color 0.2s ease-in-out;
 }
 
-.template-trash:hover {
-    color: white;
-    background-color: black;
-    border: 1px solid #ccc;
-}
-
-.template-pen {
-    cursor: pointer;
-    color: rgb(2, 2, 2);
-    border: 1px solid #ccc;
-    padding: 0 3px;
-    border-radius: 5px;
-}
-
-.template-pen:hover {
-    color: white;
-    background-color: black;
-    border: 1px solid #ccc;
+.template-icon:hover {
+    color: #d61818;
 }
 
 .button-link {
     color: #fff;
     text-decoration: none;
 }
-</style>  
+</style> 
