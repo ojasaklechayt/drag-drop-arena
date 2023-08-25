@@ -44,18 +44,23 @@ import { QSplitter, QBtn, QInput } from 'quasar';
 import axios from 'axios';
 
 export default defineComponent({
-    props: ['id'],
-    setup() {
+    props:{
+        id: String
+    },
+    setup(props) {
         const splitterModel = ref(50);
         const splitterStyles = {
             height: '600px',
             width: '600px',
         };
         const template = ref([]);
-
-        const fetchDataandID = async (id) => {
+        console.log(props.id);
+        const fetchDataandID = async () => {
             try {
-                const dataResponse = await axios.get(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${id}`);
+                const dataResponse = await axios({
+                    method:'get',
+                    url:`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
+                })
                 const data = dataResponse.data;
                 template.value = data;
                 console.log(template.value);
