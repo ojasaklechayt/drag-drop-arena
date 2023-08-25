@@ -24,7 +24,7 @@ const getAllTemplates = async (req, res) => {
 
 const getSpecificTemplate = async (req, res) => {
     try {
-        const templateId = req.params.id;
+        const templateId = req.params;
         const template = await Template.findById(templateId).select("-_id");
         if (!template) {
             return res.status(404).send('Template not found');
