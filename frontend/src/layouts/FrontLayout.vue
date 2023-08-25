@@ -2,78 +2,45 @@
     <q-layout view="lHh Lpr lFf">
         <q-page-container>
             <div id="q-app" class="app-container">
+                <div class="heading"><h2>Data Templates</h2></div>
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
-                        <q-input filled v-model="text" label="Template Name"></q-input>
-                        <q-btn class="data-button" color="primary" @click="fetchAndPopulateData">Get Data</q-btn>
-                        <q-btn class="data-button" color="primary" @click="saveTemplate">Save Template</q-btn>
+                        <q-btn class="data-button" color="primary"><router-link to="/template"
+                                class="button-link">Create New Template</router-link></q-btn>
                     </div>
-                    <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
-                        <!-- Before Splitter Content -->
-                        <template v-slot:before>
-                            <div class="content-container">
-                                <div class="section-header">Before</div>
-                                <div>
-                                    <draggable class="button-design" v-model="buttonData" group="people"
-                                        @start="onDragStart" @end="onDragEnd" item-key="id">
-                                        <template #item="{ element: first }">
-                                            <q-btn class="nested-button" color="primary" dense square>{{ first }}</q-btn>
-                                        </template>
-                                    </draggable>
-                                </div>
+                    <div class="all-templates">
+                        <div v-for="(templateItem, index) in template" :key="index" dense flat class="template-button">
+                            <div class="template-label">{{ templateItem.name }}</div>
+                            <div class="template-trash">
+                                <font-awesome-icon icon="trash" />
                             </div>
-                        </template>
-
-                        <!-- After Splitter Content -->
-                        <template v-slot:after>
-                            <div class="content-container">
-                                <div class="section-header">After</div>
-                                <div>
-                                    <draggable class="button-design" v-model="reorderedButtonData" group="people"
-                                        @start="onDragStart" @end="onDragEnd" item-key="id">
-                                        <template #item="{ element: second, index }">
-                                            <div
-                                                style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;">
-                                                <q-input class="nested-input" label-color="white" sm bg-color="primary"
-                                                    color="white" square outlined v-model="columnTitles[index]"
-                                                    :label="second"
-                                                    style="width:200px; height: 30px; text-align: center;"></q-input>
-                                            </div>
-                                        </template>
-                                    </draggable>
-                                </div>
+                            <div class="template-pen">
+                                <font-awesome-icon icon="pen" />
                             </div>
-                        </template>
-                    </q-splitter>
+                        </div>
+                    </div>
                 </div>
             </div>
         </q-page-container>
     </q-layout>
-</template>
-  
+</template> 
+
 <script>
-import { defineComponent, ref } from 'vue';
-import { QSplitter, QBtn } from 'quasar';
+import { defineComponent, ref, onMounted } from 'vue';
+import { QBtn } from 'quasar';
 import axios from 'axios';
-import draggable from 'vuedraggable';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faTrash, faPen, faUserSecret } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faTrash, faPen, faUserSecret);
 
 export default defineComponent({
     name: 'MainLayout',
     setup() {
-        const splitterModel = ref(50);
-        const splitterStyles = {
-            height: '600px',
-            width: '600px',
-        };
-
         const buttonData = ref([]);
-        const reorderedButtonData = ref([]);
-        const drag = ref(false);
-        const exportingdata = ref({});
-        const gotresponse = ref({});
-        const columnTitles = ref([]);
-        const Templateobject = ref({});
         const text = ref('');
+        const template = ref([]);
 
         const fetchAndPopulateData = async () => {
             try {
@@ -85,132 +52,52 @@ export default defineComponent({
             }
         };
 
-        const saveTemplate = async () => {
+        const fetchalltemplates = async () => {
             try {
-                Templateobject.value = {
-                    'name': text.value,
-                    'leftlabels': buttonData.value,
-                    'rightdata': exportingdata.value,
-                    'rightlabels': columnTitles.value,
-                    'righttitle': reorderedButtonData.value
-                };
-                console.log(Templateobject.value);
-                const save = await axios({
-                    method: "post",
-                    url: "https://drag-drop-arena-backend-mb5m.onrender.com/templates",
-                    data: Templateobject.value,
-                    headers: {"Content-Type":"application/json"}
-                });
-
-                console.log('Server Response:', save.data);
+                const templateResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/templates');
+                const templates = templateResponse.data;
+                template.value = templates;
+                console.log(template.value);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error("Error fetching templates: ", error);
             }
         }
 
-        const sendRequest = async () => {
-            try {
-                exportingdata.value = {};
-                gotresponse.value = {};
-
-                for (const item of reorderedButtonData.value) {
-                    exportingdata.value[item] = 1;
-                }
-
-                const response = await axios({
-                    method: "post",
-                    url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
-                    data: exportingdata.value,
-                    headers: { "Content-Type": "application/json" }
-                });
-
-                if (response.status === 200) {
-                    gotresponse.value = response.data;
-                    for (const key in gotresponse.value[0]) {
-                        exportingdata.value[key] = gotresponse.value.map(item => item[key]);
-                    }
-                } else {
-                    console.error('Non-200 status received:', response.status);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        const exportCSV = async () => {
-            await sendRequest();
-
-            const csvRows = [];
-            const fieldNames = Object.keys(exportingdata.value);
-
-            const headerRow = fieldNames.map((fieldName, index) => columnTitles.value[index] || reorderedButtonData.value[index]);
-
-            csvRows.push(headerRow.join(','));
-
-            for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
-                const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
-                csvRows.push(rowData.join(','));
-            }
-
-            const csv = csvRows.join('\n');
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'rearranged-data.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        };
-
-        const onDragStart = () => {
-            drag.value = true;
-        };
-
-        const onDragEnd = () => {
-            drag.value = false;
-        };
+        onMounted(() => {
+            fetchalltemplates();
+        });
 
         return {
-            splitterModel,
-            splitterStyles,
-            buttonData,
-            reorderedButtonData,
-            drag,
             fetchAndPopulateData,
-            onDragStart,
-            onDragEnd,
-            exportCSV,
-            columnTitles,
-            saveTemplate,
+            fetchalltemplates,
+            template,
             text
         };
     },
     components: {
-        QSplitter,
-        QBtn,
-        draggable,
+        FontAwesomeIcon,
     },
 });
 </script>
-  
+
+
 <style>
 .app-container {
     background-color: #f2f2f2;
     padding: 20px;
 }
 
+.heading{
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+}
+
 .inner-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 750px;
-}
-
-.splitter {
-    border: 1px solid #ccc;
-    background-color: #fff;
+    height: 520px;
 }
 
 .content-container {
@@ -267,5 +154,66 @@ export default defineComponent({
 
 .nested-input {
     margin-bottom: 10px;
+}
+
+.all-templates {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.template-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 20px;
+    border: 2px solid #ccc;
+    background-color: #fff;
+    border-radius: 15px;
+    width: 300%;
+    gap: 5%;
+}
+
+.template-button:hover {
+    cursor: pointer;
+}
+
+.template-label {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.template-trash {
+    cursor: pointer;
+    color: rgb(6, 5, 5);
+    border: 1px solid #ccc;
+    padding: 0 4px;
+    border-radius: 5px;
+}
+
+.template-trash:hover {
+    color: white;
+    background-color: black;
+    border: 1px solid #ccc;
+}
+
+.template-pen {
+    cursor: pointer;
+    color: rgb(2, 2, 2);
+    border: 1px solid #ccc;
+    padding: 0 3px;
+    border-radius: 5px;
+}
+
+.template-pen:hover {
+    color: white;
+    background-color: black;
+    border: 1px solid #ccc;
+}
+
+.button-link {
+    color: #fff;
+    text-decoration: none;
 }
 </style>  
