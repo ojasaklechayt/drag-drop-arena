@@ -7,7 +7,7 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary">Export CSV</q-btn>
+                        <q-btn class="button-link" color="primary" @click="exportCSV">Export CSV</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
@@ -56,6 +56,8 @@ export default defineComponent({
             width: '600px',
         };
         const template = ref([]);
+        const exportingdata = ref({});
+        const gotresponse = ref({});
         console.log(props.id);
         const fetchDataandID = async () => {
             try {
@@ -77,7 +79,7 @@ export default defineComponent({
                 exportingdata.value = {};
                 gotresponse.value = {};
 
-                for (const item of reorderedButtonData.value) {
+                for (const item of template.value.righttitle) {
                     exportingdata.value[item] = 1;
                 }
 
