@@ -92,7 +92,9 @@ export default defineComponent({
           'rightlabels': columnTitles.value,
           'righttitle': reorderedButtonData.value
         };
+
         console.log(Templateobject.value);
+
         const save = await axios({
           method: "post",
           url: "https://drag-drop-arena-backend-mb5m.onrender.com/templates",
@@ -100,18 +102,20 @@ export default defineComponent({
           headers: { "Content-Type": "application/json" }
         });
 
-        if (response.status === 400) {
-          window.alert("Template Name Already Exist");
-        } else if (response.status === 201) {
+        if (save.status === 201) {
           window.alert("Template Created Successfully");
           console.log('Server Response:', save.data);
         } else {
-          console.error('Unexpected server response:', response.status);
-        };
+          console.error('Unexpected server response:', save.status);
+        }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        if (error.response && error.response.status === 400) {
+          window.alert("Template Name Already Exists");
+        } else {
+          console.error('Error fetching data:', error);
+        }
       }
-    }
+    };
 
     const sendRequest = async () => {
       try {

@@ -3,10 +3,11 @@ const Template = require("../models/template-model");
 const createTemplate = async (req, res) => {
     try {
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
-        const existingname = await Template.findOne({name});
+        const lowerCaseName = name.toLowerCase();
+        const existingTemplate = await Template.findOne({ name: lowerCaseName });
 
-        if(existingname){
-            return res.status(400).send({message: "Template with the same name already exist"});
+        if (existingTemplate) {
+            return res.status(400).send({ message: "Template with the same name already exists" });
         }
 
         const newTemplate = new Template({ name, leftlabels, rightdata, rightlabels, righttitle });
@@ -17,6 +18,7 @@ const createTemplate = async (req, res) => {
         res.status(500).send("Error creating template");
     }
 };
+
 
 const getAllTemplates = async (req, res) => {
     try {

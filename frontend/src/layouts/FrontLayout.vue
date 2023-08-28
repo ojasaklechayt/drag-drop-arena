@@ -17,7 +17,7 @@
                             <div class="template-link">
                                 <div class="template-label">
                                     <router-link :to="'/template/' + templateItem._id">
-                                    <div style="text-decoration: none;">{{ templateItem.name}}</div>
+                                    <div>{{ templateItem.name}}</div>
                                     </router-link>
                                 </div>
                                 <div class="template-icons">
