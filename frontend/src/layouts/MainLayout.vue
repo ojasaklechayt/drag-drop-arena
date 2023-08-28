@@ -6,7 +6,6 @@
           <div class="action-button">
             <q-btn class="route-button" color="primary"><router-link to="/" class="button-link">Home</router-link></q-btn>
             <q-input filled v-model="text" label="Template Name"></q-input>
-            <q-btn class="data-button" color="primary" @click="fetchAndPopulateData">Get Data</q-btn>
             <q-btn class="data-button" color="primary" @click="saveTemplate">Save Template</q-btn>
           </div>
           <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
@@ -51,7 +50,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { QSplitter, QBtn } from 'quasar';
 import axios from 'axios';
 import draggable from 'vuedraggable';
@@ -170,13 +169,16 @@ export default defineComponent({
       drag.value = false;
     };
 
+    onMounted(() => {
+      fetchAndPopulateData();
+    })
+
     return {
       splitterModel,
       splitterStyles,
       buttonData,
       reorderedButtonData,
       drag,
-      fetchAndPopulateData,
       onDragStart,
       onDragEnd,
       exportCSV,

@@ -88,35 +88,6 @@ export default defineComponent({
             }
         };
 
-        const sendRequest = async () => {
-            try {
-                exportingdata.value = {};
-                gotresponse.value = {};
-
-                for (const item of template.value.righttitle) {
-                    exportingdata.value[item] = 1;
-                }
-
-                const response = await axios({
-                    method: "post",
-                    url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
-                    data: exportingdata.value,
-                    headers: { "Content-Type": "application/json" }
-                });
-
-                if (response.status === 200) {
-                    gotresponse.value = response.data;
-                    for (const key in gotresponse.value[0]) {
-                        exportingdata.value[key] = gotresponse.value.map(item => item[key]);
-                    }
-                } else {
-                    console.error('Non-200 status received:', response.status);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
         const deleteTemplate = async () => {
             try {
                 await axios.delete(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`);
