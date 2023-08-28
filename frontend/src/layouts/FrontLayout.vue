@@ -1,51 +1,85 @@
 <template>
-    <q-layout view="lHh Lpr lFf">
-        <q-page-container>
-            <div id="q-app" class="app-container">
-                <div class="heading">
-                    <h2>Data Templates</h2>
-                </div>
-                <div id="q-inner" class="inner-container">
-                    <div class="action-button">
-                        <q-btn class="data-button" color="primary">
-                            <router-link to="/template" class="button-link">Create New Template</router-link>
-                        </q-btn>
-                    </div>
-                    <div class="all-templates">
-                        <q-btn v-for="(templateItem) in template" :key="templateItem._id" dense flat
-                            class="template-button">
-                            <div class="template-link">
-                                <div class="template-label">
-                                    <router-link :to="'/template/' + templateItem._id">
-                                    <div>{{ templateItem.name}}</div>
-                                    </router-link>
-                                </div>
-                                <div class="template-icons">
-                                    <router-link :to="'/template/delete/' + templateItem._id"><font-awesome-icon icon="trash" class="template-icon template-trash" /></router-link>
-                                    <router-link :to="'/template/edit/' + templateItem._id"><font-awesome-icon icon="pen" class="template-icon template-pen" /></router-link>
-                                </div>
+    <div class="page">
+        <q-layout view="hHh lpR lFf">
+            <!-- Header -->
+            <q-header elevated :class="$q.dark.isActive ? 'bg-secondary' : 'bg-black'">
+                <q-toolbar>
+                    <q-btn flat @click="drawer = !drawer" round dense icon="menu"></q-btn>
+                    <q-toolbar-title>Data Templates</q-toolbar-title>
+                </q-toolbar>
+            </q-header>
+
+            <!-- Page Content -->
+            <q-page-container>
+                <router-view>
+                    <h1>Hello</h1>
+                </router-view>
+            </q-page-container>
+
+            <!-- Sidebar -->
+            <q-drawer v-model="drawer" show-if-above class="drawer">
+                <q-scroll-area class="fit">
+                    <div class="sidebar">
+                        <div class="sidebar-content">
+                            <q-btn class="data-button" color="primary" label="Create New Template" dense
+                                @click="navigateTo('/template')" />
+                            <div class="template-list">
+                                <q-item style="gap: 50%" v-for="(templateItem) in template" :key="templateItem._id"
+                                    @click="navigateTo(`/template/${templateItem._id}`)">
+                                    <q-btn>
+                                        {{ templateItem.name }}
+                                    </q-btn>
+                                    <q-item-section>
+                                        <q-btn style="background-color: brown; color: black; margin-bottom: 10%;"
+                                            @click.stop="deleteTemplate(templateItem._id)"><font-awesome-icon icon="trash"
+                                                class="template-icon template-trash" /></q-btn>
+                                        <q-btn style="background-color: aliceblue; color: black"
+                                            @click.stop="editTemplate(templateItem._id)"><font-awesome-icon icon="pen"
+                                                class="template-icon template-pen" /></q-btn>
+                                    </q-item-section>
+                                </q-item>
                             </div>
-                        </q-btn>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </q-page-container>
-    </q-layout>
+                </q-scroll-area>
+            </q-drawer>
+        </q-layout>
+    </div>
 </template>
 
 <script>
 import { defineComponent, ref, onMounted } from 'vue';
-import { QBtn } from 'quasar';
+import {
+    QLayout,
+    QDrawer,
+    QScrollArea,
+    QAvatar,
+    QToolbarTitle,
+    QItem,
+    QItemSection,
+    QBtn,
+} from 'quasar';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faTrash, faPen, faUserSecret } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faTrash, faPen, faUserSecret);
+
+library.add(faTrash, faPen);
 
 export default defineComponent({
     name: 'FrontLayout',
+    components: {
+        QLayout,
+        QDrawer,
+        QScrollArea,
+        QToolbarTitle,
+        QItem,
+        QItemSection,
+        QBtn,
+    },
     setup() {
+        const drawer = ref(false);
         const buttonData = ref([]);
         const text = ref('');
         const template = ref([]);
@@ -58,6 +92,10 @@ export default defineComponent({
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
+        };
+
+        const navigateTo = (route) => {
+            router.push({ path: route });
         };
 
         const fetchAllTemplates = async () => {
@@ -84,109 +122,69 @@ export default defineComponent({
         });
 
         return {
+            drawer,
             fetchAndPopulateData,
             fetchAllTemplates,
             gotoSpecificTemplate,
             template,
             text,
+            navigateTo,
         };
     },
     components: {
         FontAwesomeIcon,
-    },
+    }
 });
 </script>
 
 
 <style scoped>
-.app-container {
-    background-color: #f2f2f2;
-    padding: 20px;
-}
-
-.heading {
-    display: flex;
-    justify-content: center;
-    margin-top: 5%;
-}
-
-.inner-container {
+.page {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    min-height: 520px;
 }
 
-.action-button {
+.sidebar {
+    background-color: #333;
+    color: white;
+    height: 100vh;
     display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
+    flex-direction: column;
+}
+
+.sidebar-content {
+    flex-grow: 1;
+    padding: 16px;
+    overflow-y: auto;
 }
 
 .data-button {
     width: 100%;
+    margin-bottom: 16px;
 }
 
-.all-templates {
+.template-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 30%;
+    background-color: #000000;
 }
 
-.template-button {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    padding: 20px;
-    border: 2px solid #ccc;
-    background-color: #f5f5f5;
-    border-radius: 10px;
-    width: 100%;
-}
-
-.template-button:hover {
+.template-list q-item {
+    padding: 16px;
     cursor: pointer;
+    background-color: aqua;
 }
 
-.template-link {
-    width: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: left;
-    text-decoration: none;
-    color: #333;
+.template-list q-item:hover {
+    background-color: #444;
+    color: white;
 }
 
-.template-label {
-    display: flex;
-    align-items: start;
-    justify-content: flex-start;
-    margin-right: 150px;
-    font-weight: bold;
-    text-decoration: none;
+.template-list q-btn {
+    margin-right: 8px;
 }
 
-.template-icons {
-    display: flex;
-    gap: 10px;
+.page-container {
+    padding: 16px;
 }
-
-.template-icon {
-    cursor: pointer;
-    font-size: 18px;
-    color: #333;
-    transition: color 0.2s ease-in-out;
-}
-
-.template-icon:hover {
-    color: #d61818;
-}
-
-.button-link {
-    color: #fff;
-    text-decoration: none;
-}
-</style> 
+</style>

@@ -2,31 +2,32 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
-    path: '/template',
-    component: () => import('layouts/MainLayout.vue'),
-  },
-
-  {
     path: '/',
     component: () => import('layouts/FrontLayout.vue'),
-  },
-  {
-    path: '/template/:id',
-    name: 'specific-template',
-    component: () => import('layouts/SpecificLayout.vue'),
-    props: true,
-  },
-  {
-    path: '/template/edit/:id',
-    name: 'update-template',
-    component: () => import('layouts/EditLayout.vue'),
-    props: true,
-  },
-  {
-    path: '/template/delete/:id',
-    name: 'delete-template',
-    component: () => import('layouts/DeleteLayout.vue'),
-    props: true,
+    children: [
+      {
+        path: 'template',
+        component: () => import('components/MainLayout.vue'),
+      },
+      {
+        path: 'template/:id',
+        name: 'specific-template',
+        component: () => import('components/SpecificLayout.vue'),
+        props: true,
+      },
+      {
+        path: 'template/edit/:id',
+        name: 'update-template',
+        component: () => import('components/EditLayout.vue'),
+        props: true,
+      },
+      {
+        path: 'template/delete/:id',
+        name: 'delete-template',
+        component: () => import('components/DeleteLayout.vue'),
+        props: true,
+      },
+    ]
   },
   {
     path: '/:catchAll(.*)*',

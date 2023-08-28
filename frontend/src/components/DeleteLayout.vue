@@ -7,41 +7,28 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary"><router-link to="/" class="button-link" @click="updatetemplatevalue">Save Template</router-link></q-btn>
-                        <q-input filled v-model="template.name" :label="template.name"></q-input>
+                        <q-btn class="button-link" color="primary" @click="showDeleteConfirmation = true">Delete
+                            Template</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
                         <template v-slot:before>
                             <div class="content-container">
                                 <div class="section-header">Before</div>
-                                <draggable class="button-design" v-model="template.leftlabels" group="people"
-                                    @start="onDragStart" @end="onDragEnd" item-key="id">
-                                    <template #item="{ element: first }">
-                                        <q-btn class="nested-button" color="primary" dense square>{{ first }}</q-btn>
-                                    </template>
-                                </draggable>
+                                <div v-for="(item, index) in template.leftlabels" :key="index">
+                                    <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
+                                </div>
                             </div>
                         </template>
-
-
 
                         <!-- After Splitter Content -->
                         <template v-slot:after>
                             <div class="content-container">
                                 <div class="section-header">After</div>
                                 <div>
-                                    <draggable class="button-design" v-model="template.righttitle" group="people"
-                                        @start="onDragStart" @end="onDragEnd" item-key="id">
-                                        <template #item="{ element: second, index }">
-                                            <div
-                                                style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;">
-                                                <q-input class="nested-input" label-color="white" sm bg-color="primary" cursor-pointer
-                                                    color="white" square outlined v-model="template.rightlabels
-                                                    [index]" :label="second" style="width:200px; height: 30px; text-align: center;"></q-input>
-                                            </div>
-                                        </template>
-                                    </draggable>
+                                    <div v-for="(item, index) in template.righttitle" :key="index">
+                                        <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -50,15 +37,29 @@
             </div>
         </q-page-container>
     </q-layout>
-</template>  
+
+    <!-- Confirmation Dialog -->
+    <q-dialog v-model="showDeleteConfirmation">
+        <div class="q-dialog-plugin">
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Are you sure you want to delete this template?</div>
+                </q-card-section>
+                <q-card-actions align="right">
+                    <q-btn label="Cancel" color="primary" @click="showDeleteConfirmation = false" />
+                    <router-link to="/" style="padding-left: 2%;"><q-btn label="Yes" color="negative" @click="deleteTemplate" /></router-link>
+                </q-card-actions>
+            </q-card>
+        </div>
+    </q-dialog>
+</template>
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
-import { QSplitter, QBtn, QInput } from 'quasar';
 import axios from 'axios';
-import draggable from 'vuedraggable';
 
 export default defineComponent({
+    name: 'DeleteTemplate',
     props: {
         id: String
     },
@@ -69,14 +70,16 @@ export default defineComponent({
             width: '600px',
         };
         const template = ref([]);
-        const drag = ref(false);
-        console.log(props.id);
+        const exportingdata = ref({});
+        const gotresponse = ref({});
+        const showDeleteConfirmation = ref(false);
+
         const fetchDataandID = async () => {
             try {
                 const dataResponse = await axios({
                     method: 'get',
                     url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
-                })
+                });
                 const data = dataResponse.data;
                 template.value = data;
                 console.log(template.value);
@@ -86,25 +89,14 @@ export default defineComponent({
             }
         };
 
-        const updatetemplatevalue = async () => {
+        const deleteTemplate = async () => {
             try {
-                const updatetemplate = await axios({
-                    method: 'put',
-                    url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
-                    data: template.value,
-                    headers: { "Content-Type": "application/json" }
-                })
+                await axios.delete(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`);
+                showDeleteConfirmation.value = false;
+
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error deleting template:', error);
             }
-        };
-
-        const onDragStart = () => {
-            drag.value = true;
-        };
-
-        const onDragEnd = () => {
-            drag.value = false;
         };
 
         onMounted(() => {
@@ -116,20 +108,10 @@ export default defineComponent({
             splitterStyles,
             fetchDataandID,
             template,
-            drag,
-            onDragStart,
-            onDragEnd,
-            updatetemplatevalue
+            deleteTemplate,
+            showDeleteConfirmation,
         };
     },
-    components: {
-        QSplitter,
-        QBtn,
-        draggable,
-    },
-    computed: {
-    },
-
 });
 </script>
 

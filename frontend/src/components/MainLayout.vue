@@ -56,7 +56,7 @@ import axios from 'axios';
 import draggable from 'vuedraggable';
 
 export default defineComponent({
-  name: 'MainLayout',
+  name: 'CreateTemplate',
   setup() {
     const splitterModel = ref(50);
     const splitterStyles = {

@@ -7,16 +7,20 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary" @click="exportCSV">Export CSV</q-btn>
+                        <q-btn class="button-link" color="primary"><router-link to="/" class="button-link" @click="updatetemplatevalue">Save Template</router-link></q-btn>
+                        <q-input filled v-model="template.name" :label="template.name"></q-input>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
                         <template v-slot:before>
                             <div class="content-container">
                                 <div class="section-header">Before</div>
-                                <div v-for="(item, index) in template.leftlabels" :key="index">
-                                    <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
-                                </div>
+                                <draggable class="button-design" v-model="template.leftlabels" group="people"
+                                    @start="onDragStart" @end="onDragEnd" item-key="id">
+                                    <template #item="{ element: first }">
+                                        <q-btn class="nested-button" color="primary" dense square>{{ first }}</q-btn>
+                                    </template>
+                                </draggable>
                             </div>
                         </template>
 
@@ -27,9 +31,17 @@
                             <div class="content-container">
                                 <div class="section-header">After</div>
                                 <div>
-                                    <div v-for="(item, index) in template.righttitle" :key="index">
-                                        <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
-                                    </div>
+                                    <draggable class="button-design" v-model="template.righttitle" group="people"
+                                        @start="onDragStart" @end="onDragEnd" item-key="id">
+                                        <template #item="{ element: second, index }">
+                                            <div
+                                                style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;">
+                                                <q-input class="nested-input" label-color="white" sm bg-color="primary" cursor-pointer
+                                                    color="white" square outlined v-model="template.rightlabels
+                                                    [index]" :label="second" style="width:200px; height: 30px; text-align: center;"></q-input>
+                                            </div>
+                                        </template>
+                                    </draggable>
                                 </div>
                             </div>
                         </template>
@@ -44,8 +56,10 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { QSplitter, QBtn, QInput } from 'quasar';
 import axios from 'axios';
+import draggable from 'vuedraggable';
 
 export default defineComponent({
+    name:'EditTemplate',
     props: {
         id: String
     },
@@ -56,8 +70,7 @@ export default defineComponent({
             width: '600px',
         };
         const template = ref([]);
-        const exportingdata = ref({});
-        const gotresponse = ref({});
+        const drag = ref(false);
         console.log(props.id);
         const fetchDataandID = async () => {
             try {
@@ -74,59 +87,25 @@ export default defineComponent({
             }
         };
 
-        const sendRequest = async () => {
+        const updatetemplatevalue = async () => {
             try {
-                exportingdata.value = {};
-                gotresponse.value = {};
-
-                for (const item of template.value.righttitle) {
-                    exportingdata.value[item] = 1;
-                }
-
-                const response = await axios({
-                    method: "post",
-                    url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
-                    data: exportingdata.value,
+                const updatetemplate = await axios({
+                    method: 'put',
+                    url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
+                    data: template.value,
                     headers: { "Content-Type": "application/json" }
-                });
-
-                if (response.status === 200) {
-                    gotresponse.value = response.data;
-                    for (const key in gotresponse.value[0]) {
-                        exportingdata.value[key] = gotresponse.value.map(item => item[key]);
-                    }
-                } else {
-                    console.error('Non-200 status received:', response.status);
-                }
+                })
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
 
-        const exportCSV = async () => {
-            await sendRequest();
+        const onDragStart = () => {
+            drag.value = true;
+        };
 
-            const csvRows = [];
-            const fieldNames = Object.keys(exportingdata.value);
-
-            const headerRow = fieldNames.map((fieldName, index) => template.value.rightlabels[index] || template.value.righttitle[index]);
-
-            csvRows.push(headerRow.join(','));
-
-            for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
-                const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
-                csvRows.push(rowData.join(','));
-            }
-
-            const csv = csvRows.join('\n');
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'rearranged-data.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
+        const onDragEnd = () => {
+            drag.value = false;
         };
 
         onMounted(() => {
@@ -138,12 +117,16 @@ export default defineComponent({
             splitterStyles,
             fetchDataandID,
             template,
-            exportCSV
+            drag,
+            onDragStart,
+            onDragEnd,
+            updatetemplatevalue
         };
     },
     components: {
         QSplitter,
         QBtn,
+        draggable,
     },
     computed: {
     },

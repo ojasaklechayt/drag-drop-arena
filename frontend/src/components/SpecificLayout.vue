@@ -7,8 +7,7 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary" @click="showDeleteConfirmation = true">Delete
-                            Template</q-btn>
+                        <q-btn class="button-link" color="primary" @click="exportCSV">Export CSV</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
@@ -20,6 +19,8 @@
                                 </div>
                             </div>
                         </template>
+
+
 
                         <!-- After Splitter Content -->
                         <template v-slot:after>
@@ -37,28 +38,15 @@
             </div>
         </q-page-container>
     </q-layout>
-
-    <!-- Confirmation Dialog -->
-    <q-dialog v-model="showDeleteConfirmation">
-        <div class="q-dialog-plugin">
-            <q-card>
-                <q-card-section>
-                    <div class="text-h6">Are you sure you want to delete this template?</div>
-                </q-card-section>
-                <q-card-actions align="right">
-                    <q-btn label="Cancel" color="primary" @click="showDeleteConfirmation = false" />
-                    <router-link to="/" style="padding-left: 2%;"><q-btn label="Yes" color="negative" @click="deleteTemplate" /></router-link>
-                </q-card-actions>
-            </q-card>
-        </div>
-    </q-dialog>
-</template>
+</template>  
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
+import { QSplitter, QBtn, QInput } from 'quasar';
 import axios from 'axios';
 
 export default defineComponent({
+    name:'SpecificTemplate',
     props: {
         id: String
     },
@@ -71,14 +59,13 @@ export default defineComponent({
         const template = ref([]);
         const exportingdata = ref({});
         const gotresponse = ref({});
-        const showDeleteConfirmation = ref(false);
-
+        console.log(props.id);
         const fetchDataandID = async () => {
             try {
                 const dataResponse = await axios({
                     method: 'get',
                     url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
-                });
+                })
                 const data = dataResponse.data;
                 template.value = data;
                 console.log(template.value);
@@ -88,14 +75,59 @@ export default defineComponent({
             }
         };
 
-        const deleteTemplate = async () => {
+        const sendRequest = async () => {
             try {
-                await axios.delete(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`);
-                showDeleteConfirmation.value = false;
+                exportingdata.value = {};
+                gotresponse.value = {};
 
+                for (const item of template.value.righttitle) {
+                    exportingdata.value[item] = 1;
+                }
+
+                const response = await axios({
+                    method: "post",
+                    url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
+                    data: exportingdata.value,
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (response.status === 200) {
+                    gotresponse.value = response.data;
+                    for (const key in gotresponse.value[0]) {
+                        exportingdata.value[key] = gotresponse.value.map(item => item[key]);
+                    }
+                } else {
+                    console.error('Non-200 status received:', response.status);
+                }
             } catch (error) {
-                console.error('Error deleting template:', error);
+                console.error('Error fetching data:', error);
             }
+        };
+
+        const exportCSV = async () => {
+            await sendRequest();
+
+            const csvRows = [];
+            const fieldNames = Object.keys(exportingdata.value);
+
+            const headerRow = fieldNames.map((fieldName, index) => template.value.rightlabels[index] || template.value.righttitle[index]);
+
+            csvRows.push(headerRow.join(','));
+
+            for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
+                const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
+                csvRows.push(rowData.join(','));
+            }
+
+            const csv = csvRows.join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'rearranged-data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
         };
 
         onMounted(() => {
@@ -107,10 +139,16 @@ export default defineComponent({
             splitterStyles,
             fetchDataandID,
             template,
-            deleteTemplate,
-            showDeleteConfirmation,
+            exportCSV
         };
     },
+    components: {
+        QSplitter,
+        QBtn,
+    },
+    computed: {
+    },
+
 });
 </script>
 
