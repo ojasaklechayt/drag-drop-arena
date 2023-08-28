@@ -21,8 +21,8 @@
                                     </router-link>
                                 </div>
                                 <div class="template-icons">
-                                    <font-awesome-icon icon="trash" class="template-icon template-trash" />
-                                    <font-awesome-icon icon="pen" class="template-icon template-pen" />
+                                    <router-link :to="'/template/delete/' + templateItem._id"><font-awesome-icon icon="trash" class="template-icon template-trash" /></router-link>
+                                    <router-link :to="'/template/edit/' + templateItem._id"><font-awesome-icon icon="pen" class="template-icon template-pen" /></router-link>
                                 </div>
                             </div>
                         </q-btn>

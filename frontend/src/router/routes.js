@@ -17,6 +17,18 @@ const routes = [
     props: true,
   },
   {
+    path: '/template/edit/:id',
+    name: 'update-template',
+    component: () => import('layouts/EditLayout.vue'),
+    props: true,
+  },
+  {
+    path: '/template/delete/:id',
+    name: 'delete-template',
+    component: () => import('layouts/DeleteLayout.vue'),
+    props: true,
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue')
   }
