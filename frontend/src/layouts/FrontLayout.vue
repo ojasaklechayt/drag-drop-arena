@@ -11,9 +11,9 @@
 
             <!-- Page Content -->
             <q-page-container>
-                <router-view>
-                    <h1>Hello</h1>
-                </router-view>
+                <router-view></router-view>
+                <CreateTemplate v-if="showCreateTemplate" />
+                <EditTemplate v-if="showEditTemplate" />
             </q-page-container>
 
             <!-- Sidebar -->
@@ -24,18 +24,19 @@
                             <q-btn class="data-button" color="primary" label="Create New Template" dense
                                 @click="navigateTo('/template')" />
                             <div class="template-list">
-                                <q-item style="gap: 50%" v-for="(templateItem) in template" :key="templateItem._id"
-                                    @click="navigateTo(`/template/${templateItem._id}`)">
-                                    <q-btn>
-                                        {{ templateItem.name }}
-                                    </q-btn>
+                                <q-item v-for="(templateItem) in template" :key="templateItem._id">
                                     <q-item-section>
-                                        <q-btn style="background-color: brown; color: black; margin-bottom: 10%;"
-                                            @click.stop="deleteTemplate(templateItem._id)"><font-awesome-icon icon="trash"
-                                                class="template-icon template-trash" /></q-btn>
-                                        <q-btn style="background-color: aliceblue; color: black"
-                                            @click.stop="editTemplate(templateItem._id)"><font-awesome-icon icon="pen"
-                                                class="template-icon template-pen" /></q-btn>
+                                        <div class="template-item">
+                                            <div @click="navigateTo(`/template/${templateItem._id}`)">{{ templateItem.name ? templateItem.name : "No Name"}}</div>
+                                            <div class="template-buttons">
+                                                <q-btn color="red" dense @click="navigateTo(`/template/delete/${templateItem._id}`)">
+                                                    <font-awesome-icon icon="trash" class="template-icon" />
+                                                </q-btn>
+                                                <q-btn color="primary" dense @click="navigateTo(`/template/edit/${templateItem._id}`)">
+                                                    <font-awesome-icon icon="pen" class="template-icon" />
+                                                </q-btn>
+                                            </div>
+                                        </div>
                                     </q-item-section>
                                 </q-item>
                             </div>
@@ -48,22 +49,23 @@
 </template>
 
 <script>
+import CreateTemplate from '../components/MainLayout.vue';
+import EditTemplate from '../components/EditLayout.vue';
+
 import { defineComponent, ref, onMounted } from 'vue';
 import {
     QLayout,
     QDrawer,
     QScrollArea,
-    QAvatar,
     QToolbarTitle,
     QItem,
-    QItemSection,
     QBtn,
 } from 'quasar';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
-
+import { useRouter } from 'vue-router';
 
 library.add(faTrash, faPen);
 
@@ -75,14 +77,18 @@ export default defineComponent({
         QScrollArea,
         QToolbarTitle,
         QItem,
-        QItemSection,
         QBtn,
+        CreateTemplate,
+        EditTemplate
     },
     setup() {
         const drawer = ref(false);
         const buttonData = ref([]);
         const text = ref('');
         const template = ref([]);
+        const showCreateTemplate = ref(false);
+        const showEditTemplate = ref(false);
+        const router = useRouter();
 
         const fetchAndPopulateData = async () => {
             try {
@@ -96,6 +102,12 @@ export default defineComponent({
 
         const navigateTo = (route) => {
             router.push({ path: route });
+            showCreateTemplate.value = ref(false);
+        };
+
+        const navigateEditTo = (route) => {
+            router.push({path : route});
+            showEditTemplate.value = ref(false);
         };
 
         const fetchAllTemplates = async () => {
@@ -129,6 +141,8 @@ export default defineComponent({
             template,
             text,
             navigateTo,
+            navigateEditTo,
+            showCreateTemplate
         };
     },
     components: {
@@ -166,25 +180,50 @@ export default defineComponent({
 .template-list {
     display: flex;
     flex-direction: column;
-    background-color: #000000;
 }
 
-.template-list q-item {
+.template-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 16px;
     cursor: pointer;
-    background-color: aqua;
+    background-color: #000000;
+    margin-bottom: 10px;
+    border-radius: 5px;
 }
 
-.template-list q-item:hover {
-    background-color: #444;
+.template-item:hover {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+}
+
+.template-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.template-button {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.template-icon {
+    font-size: 16px;
     color: white;
 }
 
-.template-list q-btn {
-    margin-right: 8px;
-}
-
-.page-container {
-    padding: 16px;
+/* Adjust the size of the delete and edit buttons */
+.template-buttons q-btn {
+    min-width: 32px;
+    /* Adjust the width as needed */
+    min-height: 32px;
+    /* Adjust the height as needed */
 }
 </style>

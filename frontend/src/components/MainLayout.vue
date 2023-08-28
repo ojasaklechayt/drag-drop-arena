@@ -105,15 +105,13 @@ export default defineComponent({
         if (save.status === 201) {
           window.alert("Template Created Successfully");
           console.log('Server Response:', save.data);
+        } else if (save.status === 400 && save.data.message === "Template with the same name already exists") {
+          window.alert("Template Name Already Exists");
         } else {
           console.error('Unexpected server response:', save.status);
         }
       } catch (error) {
-        if (error.response && error.response.status === 400) {
-          window.alert("Template Name Already Exists");
-        } else {
-          console.error('Error fetching data:', error);
-        }
+        console.error('Error fetching data:', error);
       }
     };
 
