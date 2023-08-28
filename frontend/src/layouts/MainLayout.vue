@@ -100,7 +100,14 @@ export default defineComponent({
           headers: { "Content-Type": "application/json" }
         });
 
-        console.log('Server Response:', save.data);
+        if (response.status === 400) {
+          window.alert("Template Name Already Exist");
+        } else if (response.status === 201) {
+          window.alert("Template Created Successfully");
+          console.log('Server Response:', save.data);
+        } else {
+          console.error('Unexpected server response:', response.status);
+        };
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -269,6 +276,7 @@ export default defineComponent({
 .nested-input {
   margin-bottom: 10px;
 }
+
 .button-link {
   color: #fff;
   text-decoration: none;

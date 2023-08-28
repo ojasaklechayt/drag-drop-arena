@@ -3,6 +3,12 @@ const Template = require("../models/template-model");
 const createTemplate = async (req, res) => {
     try {
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
+        const existingname = await Template.findOne({name});
+
+        if(existingname){
+            return res.status(400).send({message: "Template with the same name already exist"});
+        }
+
         const newTemplate = new Template({ name, leftlabels, rightdata, rightlabels, righttitle });
         await newTemplate.save();
         res.status(201).send({ message: "Template Saved Successfully", template: newTemplate });
