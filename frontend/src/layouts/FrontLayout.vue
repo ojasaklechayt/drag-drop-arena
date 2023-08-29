@@ -108,7 +108,6 @@ export default defineComponent({
                 const templateResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/templates');
                 const templates = templateResponse.data;
                 template.value = templates;
-                console.log(template.value);
             } catch (error) {
                 console.error('Error fetching templates: ', error);
             }
