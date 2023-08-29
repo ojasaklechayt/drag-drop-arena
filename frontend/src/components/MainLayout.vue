@@ -102,20 +102,14 @@ export default defineComponent({
           headers: { "Content-Type": "application/json" }
         });
 
-        if (save.status === 201) {
-          window.alert("Template Created Successfully");
-          console.log('Server Response:', save.data);
-        } else if (save.status === 422) {
-          if (save.data.message === "Template with the same name already exists") {
-            window.alert("Template Name Already Exists");
-          } else {
-            console.error('Unexpected server response:', save.status);
-          }
-        } else {
-          console.error('Unexpected server response:', save.status);
-        }
+        window.alert("Template Created Successfully");
+        console.log('Server Response:', save.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        if (error.response && error.response.status === 422) {
+          alert('Template with the same name already exists.');
+        } else {
+          console.error('Error updating template:', error);
+        }
       }
     };
 
