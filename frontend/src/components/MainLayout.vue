@@ -54,6 +54,7 @@ import { defineComponent, onMounted, ref } from 'vue';
 import { QSplitter, QBtn } from 'quasar';
 import axios from 'axios';
 import draggable from 'vuedraggable';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 export default defineComponent({
   name: 'CreateTemplate',
@@ -72,6 +73,7 @@ export default defineComponent({
     const columnTitles = ref([]);
     const Templateobject = ref({});
     const text = ref('');
+    const updatecheck = ref(false);
 
     const fetchAndPopulateData = async () => {
       try {
@@ -187,6 +189,7 @@ export default defineComponent({
       buttonData,
       reorderedButtonData,
       drag,
+      updatecheck,
       onDragStart,
       onDragEnd,
       exportCSV,

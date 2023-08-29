@@ -4,6 +4,7 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/FrontLayout.vue'),
+    name: 'home-page',
     children: [
       {
         path: 'template',
