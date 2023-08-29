@@ -11,7 +11,12 @@
 
             <!-- Page Content -->
             <q-page-container>
-                <router-view></router-view>
+                <router-view>
+                    <h1 style="display: flex; flex-direction: column; text-align: center; align-items: center;">
+                        Welcome to the Drag Drop Arena
+                    </h1>
+                    <h3 style="display: flex; flex-direction: column; text-align: center; align-items: center;">You can create new templates for your data to be stored in CSV format, can give custom headings and can save the templates for future use.</h3>
+                </router-view>
                 <CreateTemplate v-if="showCreateTemplate" />
                 <EditTemplate v-if="showEditTemplate" />
             </q-page-container>
@@ -27,12 +32,15 @@
                                 <q-item v-for="(templateItem) in template" :key="templateItem._id">
                                     <q-item-section>
                                         <div class="template-item">
-                                            <div @click="navigateTo(`/template/${templateItem._id}`)">{{ templateItem.name ? templateItem.name : "No Name"}}</div>
+                                            <div @click="navigateTo(`/template/${templateItem._id}`)">{{ templateItem.name ?
+                                                templateItem.name : "No Name" }}</div>
                                             <div class="template-buttons">
-                                                <q-btn color="red" dense @click="navigateTo(`/template/delete/${templateItem._id}`)">
+                                                <q-btn color="red" dense
+                                                    @click="navigateTo(`/template/delete/${templateItem._id}`)">
                                                     <font-awesome-icon icon="trash" class="template-icon" />
                                                 </q-btn>
-                                                <q-btn color="primary" dense @click="navigateTo(`/template/edit/${templateItem._id}`)">
+                                                <q-btn color="primary" dense
+                                                    @click="navigateTo(`/template/edit/${templateItem._id}`)">
                                                     <font-awesome-icon icon="pen" class="template-icon" />
                                                 </q-btn>
                                             </div>
@@ -106,7 +114,7 @@ export default defineComponent({
         };
 
         const navigateEditTo = (route) => {
-            router.push({path : route});
+            router.push({ path: route });
             showEditTemplate.value = ref(false);
         };
 
@@ -225,5 +233,4 @@ export default defineComponent({
     /* Adjust the width as needed */
     min-height: 32px;
     /* Adjust the height as needed */
-}
-</style>
+}</style>
