@@ -8,7 +8,7 @@ const createTemplate = async (req, res) => {
         const existingTemplate = await Template.findOne({ name: lowerCaseName });
 
         if (existingTemplate) {
-            return res.status(400).json({ message: "Template with the same name already exists" });
+            return res.status(205).json({ message: "Template with the same name already exists" });
         }
 
         const newTemplate = new Template({ name, leftlabels, rightdata, rightlabels, righttitle });
