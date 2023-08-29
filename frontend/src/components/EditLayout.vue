@@ -7,8 +7,7 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary"><router-link to="/" class="button-link"
-                                @click="updatetemplatevalue">Save Template</router-link></q-btn>
+                        <q-btn class="button-link" color="primary" @click="updatetemplatevalue">Save Template</q-btn>
                         <q-input filled v-model="template.name" :label="template.name"></q-input>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
@@ -56,7 +55,7 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
-import { QSplitter, QBtn, QInput } from 'quasar';
+import { QSplitter, QBtn, QInput, Notify } from 'quasar';
 import axios from 'axios';
 import draggable from 'vuedraggable';
 
@@ -97,9 +96,10 @@ export default defineComponent({
                     data: template.value,
                     headers: { "Content-Type": "application/json" }
                 })
+                Notify.create({ message: 'Template edited successfully!!', progress: true})
             } catch (error) {
                 if (error.response && error.response.status === 422) {
-                    alert('Template with the same name already exists.');
+                    Notify.create({ message: 'Template with same name already exists!!', progress: true})
                 } else {
                     console.error('Error updating template:', error);
                 }

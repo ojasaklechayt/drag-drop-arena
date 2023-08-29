@@ -51,7 +51,7 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
-import { QSplitter, QBtn } from 'quasar';
+import { QSplitter, QBtn, Notify } from 'quasar';
 import axios from 'axios';
 import draggable from 'vuedraggable';
 
@@ -93,7 +93,6 @@ export default defineComponent({
           'righttitle': reorderedButtonData.value
         };
 
-        console.log(Templateobject.value);
 
         const save = await axios({
           method: "post",
@@ -102,11 +101,10 @@ export default defineComponent({
           headers: { "Content-Type": "application/json" }
         });
 
-        window.alert("Template Created Successfully");
-        console.log('Server Response:', save.data);
+        Notify.create({ message: 'Template created successfully!!', progress: true})
       } catch (error) {
         if (error.response && error.response.status === 422) {
-          alert('Template with the same name already exists.');
+          Notify.create({ message: 'Template with the same name already exists.', progress: true})
         } else {
           console.error('Error updating template:', error);
         }
