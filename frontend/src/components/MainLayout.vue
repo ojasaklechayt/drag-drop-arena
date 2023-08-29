@@ -105,7 +105,7 @@ export default defineComponent({
         if (save.status === 201) {
           window.alert("Template Created Successfully");
           console.log('Server Response:', save.data);
-        } else if (save.status === 205) {
+        } else if (save.status === 422) {
           if (save.data.message === "Template with the same name already exists") {
             window.alert("Template Name Already Exists");
           } else {
