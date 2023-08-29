@@ -1,5 +1,5 @@
 <template>
-    <div class="page">
+    <div>
         <q-layout view="hHh lpR lFf">
             <!-- Header -->
             <q-header elevated :class="$q.dark.isActive ? 'bg-secondary' : 'bg-black'">
@@ -11,12 +11,7 @@
 
             <!-- Page Content -->
             <q-page-container>
-                <router-view>
-                    <h1 style="display: flex; flex-direction: column; text-align: center; align-items: center;">
-                        Welcome to the Drag Drop Arena
-                    </h1>
-                    <h3 style="display: flex; flex-direction: column; text-align: center; align-items: center;">You can create new templates for your data to be stored in CSV format, can give custom headings and can save the templates for future use.</h3>
-                </router-view>
+                <router-view></router-view>
                 <CreateTemplate v-if="showCreateTemplate" />
                 <EditTemplate v-if="showEditTemplate" />
             </q-page-container>
@@ -60,7 +55,7 @@
 import CreateTemplate from '../components/MainLayout.vue';
 import EditTemplate from '../components/EditLayout.vue';
 
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, watch } from 'vue';
 import {
     QLayout,
     QDrawer,
@@ -78,7 +73,7 @@ import { useRouter } from 'vue-router';
 library.add(faTrash, faPen);
 
 export default defineComponent({
-    name: 'FrontLayout',
+    name: 'AppLayout',
     components: {
         QLayout,
         QDrawer,
@@ -87,7 +82,8 @@ export default defineComponent({
         QItem,
         QBtn,
         CreateTemplate,
-        EditTemplate
+        EditTemplate,
+        FontAwesomeIcon,
     },
     setup() {
         const drawer = ref(false);
@@ -97,26 +93,6 @@ export default defineComponent({
         const showCreateTemplate = ref(false);
         const showEditTemplate = ref(false);
         const router = useRouter();
-
-        const fetchAndPopulateData = async () => {
-            try {
-                const dataResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/data/getdata');
-                const data = dataResponse.data;
-                buttonData.value = data;
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        const navigateTo = (route) => {
-            router.push({ path: route });
-            showCreateTemplate.value = ref(false);
-        };
-
-        const navigateEditTo = (route) => {
-            router.push({ path: route });
-            showEditTemplate.value = ref(false);
-        };
 
         const fetchAllTemplates = async () => {
             try {
@@ -129,6 +105,24 @@ export default defineComponent({
             }
         };
 
+        onMounted(() => {
+            fetchAllTemplates();
+        });
+
+        watch(template, () => {
+            fetchAllTemplates();
+        });
+
+        const navigateTo = (route) => {
+            router.push({ path: route });
+            showCreateTemplate.value = ref(false);
+        };
+
+        const navigateEditTo = (route) => {
+            router.push({ path: route });
+            showEditTemplate.value = ref(false);
+        };
+
         const gotoSpecificTemplate = (templateId) => {
             try {
                 router.push({ name: 'specific-template', params: { id: templateId } });
@@ -137,33 +131,35 @@ export default defineComponent({
             }
         };
 
-        onMounted(() => {
-            fetchAllTemplates();
-        });
-
         return {
             drawer,
-            fetchAndPopulateData,
-            fetchAllTemplates,
-            gotoSpecificTemplate,
-            template,
+            buttonData,
             text,
+            template,
+            showCreateTemplate,
+            showEditTemplate,
             navigateTo,
             navigateEditTo,
-            showCreateTemplate
+            gotoSpecificTemplate,
         };
     },
-    components: {
-        FontAwesomeIcon,
-    }
 });
 </script>
-
 
 <style scoped>
 .page {
     display: flex;
     flex-direction: column;
+}
+
+.title-container {
+    text-align: center;
+    margin: 16px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .sidebar {
@@ -233,4 +229,6 @@ export default defineComponent({
     /* Adjust the width as needed */
     min-height: 32px;
     /* Adjust the height as needed */
-}</style>
+}
+</style>
+  

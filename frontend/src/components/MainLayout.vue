@@ -105,8 +105,12 @@ export default defineComponent({
         if (save.status === 201) {
           window.alert("Template Created Successfully");
           console.log('Server Response:', save.data);
-        } else if (save.status === 400 && save.data.message === "Template with the same name already exists") {
-          window.alert("Template Name Already Exists");
+        } else if (save.status === 400) {
+          if (save.data.message === "Template with the same name already exists") {
+            window.alert("Template Name Already Exists");
+          } else {
+            console.error('Unexpected server response:', save.status);
+          }
         } else {
           console.error('Unexpected server response:', save.status);
         }
@@ -114,6 +118,7 @@ export default defineComponent({
         console.error('Error fetching data:', error);
       }
     };
+
 
     const sendRequest = async () => {
       try {

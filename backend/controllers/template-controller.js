@@ -4,20 +4,26 @@ const createTemplate = async (req, res) => {
     try {
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
         const lowerCaseName = name.toLowerCase();
+
         const existingTemplate = await Template.findOne({ name: lowerCaseName });
 
         if (existingTemplate) {
-            return res.status(400).send({ message: "Template with the same name already exists" });
+            return res.status(400).json({ message: "Template with the same name already exists" });
         }
 
         const newTemplate = new Template({ name, leftlabels, rightdata, rightlabels, righttitle });
         await newTemplate.save();
-        res.status(201).send({ message: "Template Saved Successfully", template: newTemplate });
+
+        res.status(201).json({ message: "Template Saved Successfully", template: newTemplate });
     } catch (error) {
         console.error("Error creating template:", error);
-        res.status(500).send("Error creating template");
+
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+module.exports = { createTemplate };
+
 
 
 const getAllTemplates = async (req, res) => {
