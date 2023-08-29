@@ -5,7 +5,7 @@
             <q-header elevated :class="$q.dark.isActive ? 'bg-secondary' : 'bg-black'">
                 <q-toolbar>
                     <q-btn flat @click="drawer = !drawer" round dense icon="menu"></q-btn>
-                    <q-toolbar-title @click="ToTheHomePage()" style="cursor: pointer;">Data Templates</q-toolbar-title>
+                    <q-toolbar-title>Data Templates</q-toolbar-title>
                 </q-toolbar>
             </q-header>
 
@@ -122,10 +122,6 @@ export default defineComponent({
             fetchAllTemplates();
         });
 
-        const ToTheHomePage = () => {
-            router.push({name: 'home-page'});
-        }
-
         const navigateTo = () => {
             router.push({ name: 'create-template' });
             showCreateTemplate.value = false;
@@ -162,8 +158,7 @@ export default defineComponent({
             navigateTo,
             navigateEditTo,
             gotoSpecificTemplate,
-            navigateDeleteTo,
-            ToTheHomePage
+            navigateDeleteTo
         };
     },
 });
