@@ -54,21 +54,33 @@ const updateTemplate = async (req, res) => {
     try {
         const templateId = req.params.id;
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
+        const lowerCaseName = name.toLowerCase();
 
+        // Check if a template with the same name already exists
+        const existingTemplate = await Template.findOne({ name: lowerCaseName });
+
+        if (existingTemplate && existingTemplate._id.toString() !== templateId) {
+            return res.status(422).json({ message: "Template with the same name already exists" });
+        }
+
+        // Update the template
         const updatedTemplate = await Template.findByIdAndUpdate(
             templateId,
             { name, leftlabels, rightdata, rightlabels, righttitle },
             { new: true }
         );
+
         if (!updatedTemplate) {
             return res.status(404).send('Template not found');
         }
+
         res.status(200).json(updatedTemplate);
     } catch (error) {
         console.error("Error updating template:", error);
         res.status(500).send("Error updating template");
     }
 };
+
 
 const deleteTemplate = async (req, res) => {
     try {

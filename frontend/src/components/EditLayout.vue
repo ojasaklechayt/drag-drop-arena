@@ -7,7 +7,8 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary"><router-link to="/" class="button-link" @click="updatetemplatevalue">Save Template</router-link></q-btn>
+                        <q-btn class="button-link" color="primary"><router-link to="/" class="button-link"
+                                @click="updatetemplatevalue">Save Template</router-link></q-btn>
                         <q-input filled v-model="template.name" :label="template.name"></q-input>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
@@ -36,9 +37,10 @@
                                         <template #item="{ element: second, index }">
                                             <div
                                                 style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;">
-                                                <q-input class="nested-input" label-color="white" sm bg-color="primary" cursor-pointer
-                                                    color="white" square outlined v-model="template.rightlabels
-                                                    [index]" :label="second" style="width:200px; height: 30px; text-align: center;"></q-input>
+                                                <q-input class="nested-input" label-color="white" sm bg-color="primary"
+                                                    cursor-pointer color="white" square outlined v-model="template.rightlabels
+                                                    [index]" :label="second"
+                                                    style="width:200px; height: 30px; text-align: center;"></q-input>
                                             </div>
                                         </template>
                                     </draggable>
@@ -59,7 +61,7 @@ import axios from 'axios';
 import draggable from 'vuedraggable';
 
 export default defineComponent({
-    name:'EditTemplate',
+    name: 'EditTemplate',
     props: {
         id: String
     },
@@ -96,7 +98,11 @@ export default defineComponent({
                     headers: { "Content-Type": "application/json" }
                 })
             } catch (error) {
-                console.error('Error fetching data:', error);
+                if (error.response && error.response.status === 422) {
+                    alert('Template with the same name already exists.');
+                } else {
+                    console.error('Error updating template:', error);
+                }
             }
         };
 
