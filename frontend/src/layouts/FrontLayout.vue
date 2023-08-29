@@ -13,7 +13,9 @@
             <q-page-container>
                 <router-view></router-view>
                 <CreateTemplate v-if="showCreateTemplate" />
-                <EditTemplate v-if="showEditTemplate" />
+                <EditTemplate v-if="showEditTemplate" :id="template._id" />
+                <DeleteTemplate v-if="showEditTemplate" :id="template._id" />
+                <SpecificTemplate v-if="showEditTemplate" :id="template._id" />
             </q-page-container>
 
             <!-- Sidebar -->
@@ -22,20 +24,20 @@
                     <div class="sidebar">
                         <div class="sidebar-content">
                             <q-btn class="data-button" color="primary" label="Create New Template" dense
-                                @click="navigateTo('/template')" />
+                                @click="navigateTo()" />
                             <div class="template-list">
                                 <q-item v-for="(templateItem) in template" :key="templateItem._id">
                                     <q-item-section>
                                         <div class="template-item">
-                                            <div @click="navigateTo(`/template/${templateItem._id}`)">{{ templateItem.name ?
+                                            <div @click="gotoSpecificTemplate(templateItem._id)">{{ templateItem.name ?
                                                 templateItem.name : "No Name" }}</div>
                                             <div class="template-buttons">
                                                 <q-btn color="red" dense
-                                                    @click="navigateTo(`/template/delete/${templateItem._id}`)">
+                                                    @click="navigateDeleteTo(templateItem._id)">
                                                     <font-awesome-icon icon="trash" class="template-icon" />
                                                 </q-btn>
                                                 <q-btn color="primary" dense
-                                                    @click="navigateTo(`/template/edit/${templateItem._id}`)">
+                                                    @click="navigateEditTo(templateItem._id)">
                                                     <font-awesome-icon icon="pen" class="template-icon" />
                                                 </q-btn>
                                             </div>
@@ -54,6 +56,8 @@
 <script>
 import CreateTemplate from '../components/MainLayout.vue';
 import EditTemplate from '../components/EditLayout.vue';
+import DeleteTemplate from '../components/DeleteLayout.vue';
+import SpecificTemplate from '../components/SpecificLayout.vue';
 
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import {
@@ -84,6 +88,9 @@ export default defineComponent({
         CreateTemplate,
         EditTemplate,
         FontAwesomeIcon,
+        DeleteTemplate,
+        SpecificTemplate
+
     },
     setup() {
         const drawer = ref(false);
@@ -92,6 +99,8 @@ export default defineComponent({
         const template = ref([]);
         const showCreateTemplate = ref(false);
         const showEditTemplate = ref(false);
+        const showDeleteTemplate = ref(false);
+        const showSpecificTemplate = ref(false);
         const router = useRouter();
 
         const fetchAllTemplates = async () => {
@@ -113,16 +122,22 @@ export default defineComponent({
             fetchAllTemplates();
         });
 
-        const navigateTo = (route) => {
-            router.push({ path: route });
-            showCreateTemplate.value = ref(false);
+        const navigateTo = () => {
+            router.push({ name: 'create-template' });
+            showCreateTemplate.value = false;
+            showEditTemplate.value = false;
+        }
+
+        const navigateEditTo = (templateId) => {
+            router.push({ name: 'update-template', params: { id: templateId } });
+            showEditTemplate.value = false;
         };
 
-        const navigateEditTo = (route) => {
-            router.push({ path: route });
-            showEditTemplate.value = ref(false);
-        };
+        const navigateDeleteTo = (templateId) => {
+            router.push({name: 'delete-template', params: {id: templateId}});
+            showDeleteTemplate.value = false;
 
+        }
         const gotoSpecificTemplate = (templateId) => {
             try {
                 router.push({ name: 'specific-template', params: { id: templateId } });
@@ -138,9 +153,12 @@ export default defineComponent({
             template,
             showCreateTemplate,
             showEditTemplate,
+            showDeleteTemplate,
+            showSpecificTemplate,
             navigateTo,
             navigateEditTo,
             gotoSpecificTemplate,
+            navigateDeleteTo
         };
     },
 });

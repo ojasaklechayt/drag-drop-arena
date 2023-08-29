@@ -7,6 +7,7 @@ const routes = [
     children: [
       {
         path: 'template',
+        name:'create-template',
         component: () => import('components/MainLayout.vue'),
       },
       {
