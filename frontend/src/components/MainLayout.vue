@@ -111,62 +111,6 @@ export default defineComponent({
       }
     };
 
-
-    const sendRequest = async () => {
-      try {
-        exportingdata.value = {};
-        gotresponse.value = {};
-
-        for (const item of reorderedButtonData.value) {
-          exportingdata.value[item] = 1;
-        }
-
-        const response = await axios({
-          method: "post",
-          url: "https://drag-drop-arena-backend-mb5m.onrender.com/data/giveresult",
-          data: exportingdata.value,
-          headers: { "Content-Type": "application/json" }
-        });
-
-        if (response.status === 200) {
-          gotresponse.value = response.data;
-          for (const key in gotresponse.value[0]) {
-            exportingdata.value[key] = gotresponse.value.map(item => item[key]);
-          }
-        } else {
-          console.error('Non-200 status received:', response.status);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    const exportCSV = async () => {
-      await sendRequest();
-
-      const csvRows = [];
-      const fieldNames = Object.keys(exportingdata.value);
-
-      const headerRow = fieldNames.map((fieldName, index) => columnTitles.value[index] || reorderedButtonData.value[index]);
-
-      csvRows.push(headerRow.join(','));
-
-      for (let i = 0; i < exportingdata.value[fieldNames[0]].length; i++) {
-        const rowData = fieldNames.map(fieldName => exportingdata.value[fieldName][i]);
-        csvRows.push(rowData.join(','));
-      }
-
-      const csv = csvRows.join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'rearranged-data.csv';
-      a.click();
-      window.URL.revokeObjectURL(url);
-    };
-
     const onDragStart = () => {
       drag.value = true;
     };
@@ -187,7 +131,6 @@ export default defineComponent({
       drag,
       onDragStart,
       onDragEnd,
-      exportCSV,
       columnTitles,
       saveTemplate,
       text
