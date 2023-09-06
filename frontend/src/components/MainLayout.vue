@@ -6,7 +6,7 @@
           <div class="action-button">
             <q-btn class="route-button" color="primary"><router-link to="/" class="button-link">Home</router-link></q-btn>
             <q-input filled v-model="text" label="Template Name"></q-input>
-            <q-btn class="data-button" color="primary" @click="saveTemplate">Save Template</q-btn>
+            <q-btn class="data-button" color="primary" @click="update_display()">Save Template</q-btn>
           </div>
           <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
             <!-- Before Splitter Content -->
@@ -135,6 +135,13 @@ export default defineComponent({
       saveTemplate,
       text
     };
+  },
+  emits: ['emitdisplay'],
+  methods:{
+    update_display() {
+      this.$emit('emitdisplay');
+      this.saveTemplate();
+    }
   },
   components: {
     QSplitter,

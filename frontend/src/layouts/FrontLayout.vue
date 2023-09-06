@@ -12,7 +12,7 @@
             <!-- Page Content -->
             <q-page-container>
                 <router-view></router-view>
-                <CreateTemplate v-if="showCreateTemplate" />
+                <CreateTemplate v-if="showCreateTemplate" @emitdisplay="receiveEmit()" />
                 <EditTemplate v-if="showEditTemplate" :id="template._id" />
                 <DeleteTemplate v-if="showEditTemplate" :id="template._id" />
                 <SpecificTemplate v-if="showEditTemplate" :id="template._id" />
@@ -32,12 +32,10 @@
                                             <div @click="gotoSpecificTemplate(templateItem._id)">{{ templateItem.name ?
                                                 templateItem.name : "No Name" }}</div>
                                             <div class="template-buttons">
-                                                <q-btn color="red" dense
-                                                    @click="navigateDeleteTo(templateItem._id)">
+                                                <q-btn color="red" dense @click="navigateDeleteTo(templateItem._id)">
                                                     <font-awesome-icon icon="trash" class="template-icon" />
                                                 </q-btn>
-                                                <q-btn color="primary" dense
-                                                    @click="navigateEditTo(templateItem._id)">
+                                                <q-btn color="primary" dense @click="navigateEditTo(templateItem._id)">
                                                     <font-awesome-icon icon="pen" class="template-icon" />
                                                 </q-btn>
                                             </div>
@@ -133,7 +131,7 @@ export default defineComponent({
         };
 
         const navigateDeleteTo = (templateId) => {
-            router.push({name: 'delete-template', params: {id: templateId}});
+            router.push({ name: 'delete-template', params: { id: templateId } });
             showDeleteTemplate.value = false;
 
         }
@@ -160,6 +158,11 @@ export default defineComponent({
             navigateDeleteTo
         };
     },
+    methods: {
+        receiveEmit() {
+            alert('Hello World!');
+        }
+    }
 });
 </script>
 
