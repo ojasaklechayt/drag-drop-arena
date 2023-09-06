@@ -7,7 +7,7 @@
                         <q-btn class="route-button" color="primary">
                             <router-link to="/" class="button-link">Home</router-link>
                         </q-btn>
-                        <q-btn class="button-link" color="primary" @click="showDeleteConfirmation = true">Delete
+                        <q-btn class="button-link" color="primary" @click="this.showDeleteConfirmation = true">Delete
                             Template</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
@@ -15,7 +15,7 @@
                         <template v-slot:before>
                             <div class="content-container">
                                 <div class="section-header">Before</div>
-                                <div v-for="(item, index) in template.leftlabels" :key="index">
+                                <div v-for="(item, index) in this.template.leftlabels" :key="index">
                                     <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
                                 </div>
                             </div>
@@ -26,7 +26,7 @@
                             <div class="content-container">
                                 <div class="section-header">After</div>
                                 <div>
-                                    <div v-for="(item, index) in template.righttitle" :key="index">
+                                    <div v-for="(item, index) in this.template.righttitle" :key="index">
                                         <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
                                     </div>
                                 </div>
@@ -39,15 +39,16 @@
     </q-layout>
 
     <!-- Confirmation Dialog -->
-    <q-dialog v-model="showDeleteConfirmation">
+    <q-dialog v-model="this.showDeleteConfirmation">
         <div class="q-dialog-plugin">
             <q-card>
                 <q-card-section>
                     <div class="text-h6">Are you sure you want to delete this template?</div>
                 </q-card-section>
                 <q-card-actions align="right">
-                    <q-btn label="Cancel" color="primary" @click="showDeleteConfirmation = false" />
-                    <router-link to="/" style="padding-left: 2%;"><q-btn label="Yes" color="negative" @click="deleteTemplate" /></router-link>
+                    <q-btn label="Cancel" color="primary" @click="this.showDeleteConfirmation = false" />
+                    <router-link to="/" style="padding-left: 2%;"><q-btn label="Yes" color="negative"
+                            @click="this.deleteTemplate" /></router-link>
                 </q-card-actions>
             </q-card>
         </div>
@@ -60,6 +61,12 @@ import axios from 'axios';
 
 export default defineComponent({
     name: 'DeleteTemplate',
+    data() {
+        return {
+            template: [],
+            showDeleteConfirmation: false
+        }
+    },
     props: {
         id: String
     },
@@ -69,49 +76,41 @@ export default defineComponent({
             height: '600px',
             width: '600px',
         };
-        const template = ref([]);
-        const exportingdata = ref({});
-        const gotresponse = ref({});
-        const showDeleteConfirmation = ref(false);
-
-        const fetchDataandID = async () => {
-            try {
-                const dataResponse = await axios({
-                    method: 'get',
-                    url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
-                });
-                const data = dataResponse.data;
-                template.value = data;
-                console.log(template.value);
-                console.log(template.value.leftlabels);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        const deleteTemplate = async () => {
-            try {
-                await axios.delete(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`);
-                showDeleteConfirmation.value = false;
-
-            } catch (error) {
-                console.error('Error deleting template:', error);
-            }
-        };
-
-        onMounted(() => {
-            fetchDataandID();
-        });
 
         return {
             splitterModel,
             splitterStyles,
-            fetchDataandID,
-            template,
-            deleteTemplate,
-            showDeleteConfirmation,
+            props
         };
     },
+    methods: {
+        async fetchDataandID() {
+            try {
+                const dataResponse = await axios({
+                    method: 'get',
+                    url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${this.props.id}`,
+                });
+                const data = dataResponse.data;
+                this.template = data;
+                console.log(this.template);
+                console.log(this.template.leftlabels);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        },
+        async deleteTemplate() {
+            try {
+                await axios.delete(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${this.props.id}`);
+                this.showDeleteConfirmation = false;
+
+            } catch (error) {
+                console.error('Error deleting template:', error);
+            }
+        },
+    },
+    mounted(){
+            this.fetchDataandID();
+        },
 });
 </script>
 

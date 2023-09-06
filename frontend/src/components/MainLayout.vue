@@ -136,10 +136,15 @@ export default defineComponent({
       text
     };
   },
+  data() {
+    return{
+      check: true
+    }
+  },
   emits: ['emitdisplay'],
   methods:{
     update_display() {
-      this.$emit('emitdisplay');
+      this.$emit('emitdisplay', this.check);
       this.saveTemplate();
     }
   },

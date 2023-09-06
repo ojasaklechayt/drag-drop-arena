@@ -12,10 +12,10 @@
             <!-- Page Content -->
             <q-page-container>
                 <router-view></router-view>
-                <CreateTemplate v-if="showCreateTemplate" @emitdisplay="receiveEmit()" />
-                <EditTemplate v-if="showEditTemplate" :id="template._id" />
-                <DeleteTemplate v-if="showEditTemplate" :id="template._id" />
-                <SpecificTemplate v-if="showEditTemplate" :id="template._id" />
+                <CreateTemplate v-if="showCreateTemplate || fromChild == false" @emitdisplay="receiveEmit" />
+                <EditTemplate v-if="showEditTemplate" :id="template[0]._id" />
+                <DeleteTemplate v-if="showDeleteTemplate" :id="template[0]._id" />
+                <SpecificTemplate v-if="showEditTemplate" :id="template[0]._id" />
             </q-page-container>
 
             <!-- Sidebar -->
@@ -26,7 +26,7 @@
                             <q-btn class="data-button" color="primary" label="Create New Template" dense
                                 @click="navigateTo()" />
                             <div class="template-list">
-                                <q-item v-for="(templateItem) in template" :key="templateItem._id">
+                                <q-item v-for="(templateItem) in this.template" :key="templateItem._id">
                                     <q-item-section>
                                         <div class="template-item">
                                             <div @click="gotoSpecificTemplate(templateItem._id)">{{ templateItem.name ?
@@ -57,7 +57,7 @@ import EditTemplate from '../components/EditLayout.vue';
 import DeleteTemplate from '../components/DeleteLayout.vue';
 import SpecificTemplate from '../components/SpecificLayout.vue';
 
-import { defineComponent, ref, onMounted, watch } from 'vue';
+import { defineComponent, ref } from 'vue';
 import {
     QLayout,
     QDrawer,
@@ -90,38 +90,30 @@ export default defineComponent({
         SpecificTemplate
 
     },
+    data() {
+        return {
+            fromChild: false,
+            template: [],
+        }
+    },
     setup() {
         const drawer = ref(false);
         const buttonData = ref([]);
         const text = ref('');
-        const template = ref([]);
         const showCreateTemplate = ref(false);
         const showEditTemplate = ref(false);
-        const showDeleteTemplate = ref(false);
         const showSpecificTemplate = ref(false);
+        const showDeleteTemplate = ref(false);
         const router = useRouter();
+        const idToDelete = ref(null);
 
-        const fetchAllTemplates = async () => {
-            try {
-                const templateResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/templates');
-                const templates = templateResponse.data;
-                template.value = templates;
-            } catch (error) {
-                console.error('Error fetching templates: ', error);
-            }
-        };
-
-        onMounted(() => {
-            fetchAllTemplates();
-        });
-
-        watch(template, () => {
-            fetchAllTemplates();
-        });
+        // watch(template, () => {
+        //     fetchAllTemplates();
+        // });
 
         const navigateTo = () => {
-            router.push({ name: 'create-template' });
-            showCreateTemplate.value = false;
+            // router.push({ name: 'create-template' });
+            showCreateTemplate.value = true;
             showEditTemplate.value = false;
         }
 
@@ -131,10 +123,11 @@ export default defineComponent({
         };
 
         const navigateDeleteTo = (templateId) => {
-            router.push({ name: 'delete-template', params: { id: templateId } });
-            showDeleteTemplate.value = false;
-
+            showDeleteTemplate.value = true;
+            showCreateTemplate.value = false;
+            idToDelete.value = templateId;
         }
+
         const gotoSpecificTemplate = (templateId) => {
             try {
                 router.push({ name: 'specific-template', params: { id: templateId } });
@@ -147,22 +140,40 @@ export default defineComponent({
             drawer,
             buttonData,
             text,
-            template,
             showCreateTemplate,
             showEditTemplate,
-            showDeleteTemplate,
             showSpecificTemplate,
+            showDeleteTemplate,
+            idToDelete,
             navigateTo,
             navigateEditTo,
+            navigateDeleteTo,
             gotoSpecificTemplate,
-            navigateDeleteTo
         };
     },
     methods: {
-        receiveEmit() {
-            alert('Hello World!');
-        }
-    }
+        async receiveEmit(value) {
+            this.fromChild = value;
+            if (this.fromChild) {
+
+                await this.fetchAllTemplates();
+            }
+            console.log('Hello World!>>>>>>>>>>>>>' + this.fromChild);
+        },
+
+        async fetchAllTemplates() {
+            try {
+                const templateResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/templates');
+                const templates = templateResponse.data;
+                this.template = templates;
+            } catch (error) {
+                console.error('Error fetching templates: ', error);
+            }
+        },
+    },
+    mounted() {
+        this.fetchAllTemplates();
+    },
 });
 </script>
 
