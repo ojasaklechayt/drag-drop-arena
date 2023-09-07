@@ -48,7 +48,7 @@
                 <q-card-actions align="right">
                     <q-btn label="Cancel" color="primary" @click="this.showDeleteConfirmation = false" />
                     <router-link to="/" style="padding-left: 2%;"><q-btn label="Yes" color="negative"
-                            @click="this.deleteTemplate" /></router-link>
+                            @click="this.delete_display" /></router-link>
                 </q-card-actions>
             </q-card>
         </div>
@@ -63,6 +63,7 @@ export default defineComponent({
     name: 'DeleteTemplate',
     data() {
         return {
+            check: true,
             template: [],
             showDeleteConfirmation: false
         }
@@ -83,6 +84,7 @@ export default defineComponent({
             props
         };
     },
+    emits: ['emitdeletedisplay'],
     methods: {
         async fetchDataandID() {
             try {
@@ -107,10 +109,14 @@ export default defineComponent({
                 console.error('Error deleting template:', error);
             }
         },
+        async delete_display() {
+            await this.deleteTemplate();
+            await this.$emit('emitdeletedisplay', this.check);
+        }
     },
-    mounted(){
-            this.fetchDataandID();
-        },
+    mounted() {
+        this.fetchDataandID();
+    },
 });
 </script>
 

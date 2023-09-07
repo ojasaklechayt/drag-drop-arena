@@ -101,10 +101,10 @@ export default defineComponent({
           headers: { "Content-Type": "application/json" }
         });
 
-        Notify.create({ message: 'Template created successfully!!', progress: true})
+        Notify.create({ message: 'Template created successfully!!', progress: true })
       } catch (error) {
         if (error.response && error.response.status === 422) {
-          Notify.create({ message: 'Template with the same name already exists.', progress: true})
+          Notify.create({ message: 'Template with the same name already exists.', progress: true })
         } else {
           console.error('Error updating template:', error);
         }
@@ -137,15 +137,15 @@ export default defineComponent({
     };
   },
   data() {
-    return{
+    return {
       check: true
     }
   },
   emits: ['emitdisplay'],
-  methods:{
-    update_display() {
-      this.$emit('emitdisplay', this.check);
-      this.saveTemplate();
+  methods: {
+    async update_display() {
+      await this.saveTemplate();
+      await this.$emit('emitdisplay', this.check);
     }
   },
   components: {

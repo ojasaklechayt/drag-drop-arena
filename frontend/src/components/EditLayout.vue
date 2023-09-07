@@ -4,9 +4,6 @@
             <div id="q-app" class="app-container">
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
-                        <q-btn class="route-button" color="primary">
-                            <router-link to="/" class="button-link">Home</router-link>
-                        </q-btn>
                         <q-btn class="button-link" color="primary" @click="updatetemplatevalue">Save Template</q-btn>
                         <q-input filled v-model="template.name" :label="template.name"></q-input>
                     </div>

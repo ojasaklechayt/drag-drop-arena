@@ -12,7 +12,7 @@
             <!-- Page Content -->
             <q-page-container>
                 <CreateTemplate v-model="showCreateTemplate" v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
-                <DeleteTemplate v-model="showDeleteTemplate" v-if="showDeleteTemplate" :id="template[0]._id" />
+                <DeleteTemplate v-model="showDeleteTemplate" v-if="showDeleteTemplate" :id="template[0]._id" @emitdeletedisplay="receiveEmit"/>
                 <EditTemplate v-model="showEditTemplate" v-if="showEditTemplate" :id="template[0]._id" />
                 <SpecificTemplate v-model="showSpecificTemplate" v-if="showSpecificTemplate" :id="template[0]._id" />
             </q-page-container>
@@ -162,15 +162,6 @@ export default defineComponent({
         };
     },
     methods: {
-        async receiveEmit(value) {
-            this.fromChild = value;
-            if (this.fromChild) {
-
-                await this.fetchAllTemplates();
-            }
-            console.log('Hello World!>>>>>>>>>>>>>' + this.fromChild);
-        },
-
         async fetchAllTemplates() {
             try {
                 const templateResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/templates');
@@ -180,6 +171,17 @@ export default defineComponent({
                 console.error('Error fetching templates: ', error);
             }
         },
+        async receiveEmit(value) {
+            if (value == true) {
+                await this.fetchAllTemplates();
+                this.showCreateTemplate = false;
+                this.showEditTemplate = false;
+                this.showDeleteTemplate = false;
+                this.showSpecificTemplate = false;
+            }
+            console.log('Hello World!>>>>>>>>>>>>>' + this.fromChild);
+        },
+
     },
     mounted() {
         this.fetchAllTemplates();
