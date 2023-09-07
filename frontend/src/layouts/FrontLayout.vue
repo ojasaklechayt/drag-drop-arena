@@ -11,9 +11,10 @@
 
             <!-- Page Content -->
             <q-page-container>
+                <HomeComponent v-model="showHomeTemplate" v-if="showHomeTemplate"/>
                 <CreateTemplate v-model="showCreateTemplate" v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
                 <DeleteTemplate v-model="showDeleteTemplate" v-if="showDeleteTemplate" :id="template[0]._id" @emitdeletedisplay="receiveEmit"/>
-                <EditTemplate v-model="showEditTemplate" v-if="showEditTemplate" :id="template[0]._id" />
+                <EditTemplate v-model="showEditTemplate" v-if="showEditTemplate" :id="template[0]._id" @emiteditdisplay="receiveEmit"/>
                 <SpecificTemplate v-model="showSpecificTemplate" v-if="showSpecificTemplate" :id="template[0]._id" />
             </q-page-container>
 
@@ -55,6 +56,7 @@ import CreateTemplate from '../components/MainLayout.vue';
 import EditTemplate from '../components/EditLayout.vue';
 import DeleteTemplate from '../components/DeleteLayout.vue';
 import SpecificTemplate from '../components/SpecificLayout.vue';
+import HomeComponent from '../components/WelcomeCompoent.vue'
 
 import { defineComponent, ref } from 'vue';
 import {
@@ -86,7 +88,8 @@ export default defineComponent({
         EditTemplate,
         FontAwesomeIcon,
         DeleteTemplate,
-        SpecificTemplate
+        SpecificTemplate,
+        HomeComponent
 
     },
     data() {
@@ -103,6 +106,7 @@ export default defineComponent({
         const showEditTemplate = ref(false);
         const showSpecificTemplate = ref(false);
         const showDeleteTemplate = ref(false);
+        const showHomeTemplate = ref(true);
         const router = useRouter();
         const idToDelete = ref(null);
 
@@ -112,6 +116,7 @@ export default defineComponent({
 
         const navigateTo = () => {
             // router.push({ name: 'create-template' });
+            showHomeTemplate.value = false;
             showCreateTemplate.value = true;
             showEditTemplate.value = false;
             showDeleteTemplate.value = false;
@@ -120,6 +125,7 @@ export default defineComponent({
 
         const navigateEditTo = (templateId) => {
             // router.push({ name: 'update-template', params: { id: templateId } });
+            showHomeTemplate.value = false;
             showCreateTemplate.value = false;
             showEditTemplate.value = true;
             showDeleteTemplate.value = false;
@@ -127,6 +133,7 @@ export default defineComponent({
         };
 
         const navigateDeleteTo = (templateId) => {
+            showHomeTemplate.value = false;
             showCreateTemplate.value = false;
             showEditTemplate.value = false;
             showDeleteTemplate.value = true;
@@ -137,6 +144,7 @@ export default defineComponent({
         const gotoSpecificTemplate = (templateId) => {
             try {
                 // router.push({ name: 'specific-template', params: { id: templateId } });
+                showHomeTemplate.value = false;
                 showCreateTemplate.value = false;
                 showEditTemplate.value = false;
                 showDeleteTemplate.value = false;
@@ -155,6 +163,7 @@ export default defineComponent({
             showSpecificTemplate,
             showDeleteTemplate,
             idToDelete,
+            showHomeTemplate,
             navigateTo,
             navigateEditTo,
             navigateDeleteTo,
@@ -174,6 +183,7 @@ export default defineComponent({
         async receiveEmit(value) {
             if (value == true) {
                 await this.fetchAllTemplates();
+                this.showHomeTemplate = true;
                 this.showCreateTemplate = false;
                 this.showEditTemplate = false;
                 this.showDeleteTemplate = false;

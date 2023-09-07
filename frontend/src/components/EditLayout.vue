@@ -4,7 +4,7 @@
             <div id="q-app" class="app-container">
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
-                        <q-btn class="button-link" color="primary" @click="updatetemplatevalue">Save Template</q-btn>
+                        <q-btn class="button-link" color="primary" @click="edit_display()">Save Template</q-btn>
                         <q-input filled v-model="template.name" :label="template.name"></q-input>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
@@ -93,10 +93,10 @@ export default defineComponent({
                     data: template.value,
                     headers: { "Content-Type": "application/json" }
                 })
-                Notify.create({ message: 'Template edited successfully!!', progress: true})
+                Notify.create({ message: 'Template edited successfully!!', progress: true })
             } catch (error) {
                 if (error.response && error.response.status === 422) {
-                    Notify.create({ message: 'Template with same name already exists!!', progress: true})
+                    Notify.create({ message: 'Template with same name already exists!!', progress: true })
                 } else {
                     console.error('Error updating template:', error);
                 }
@@ -125,6 +125,18 @@ export default defineComponent({
             onDragEnd,
             updatetemplatevalue
         };
+    },
+    data() {
+        return {
+            check: true
+        }
+    },
+    emits: ['emiteditdisplay'],
+    methods: {
+        async edit_display() {
+            await this.updatetemplatevalue();
+            await this.$emit('emiteditdisplay', this.check);
+        }
     },
     components: {
         QSplitter,
