@@ -11,11 +11,21 @@
 
             <!-- Page Content -->
             <q-page-container>
-                <HomeComponent v-model="showHomeTemplate" v-if="showHomeTemplate"/>
-                <CreateTemplate v-model="showCreateTemplate" v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
-                <DeleteTemplate v-model="showDeleteTemplate" v-if="showDeleteTemplate" :id="template[0]._id" @emitdeletedisplay="receiveEmit"/>
-                <EditTemplate v-model="showEditTemplate" v-if="showEditTemplate" :id="template[0]._id" @emiteditdisplay="receiveEmit"/>
-                <SpecificTemplate v-model="showSpecificTemplate" v-if="showSpecificTemplate" :id="template[0]._id" />
+                <keep-alive>
+                    <HomeComponent v-if="showHomeTemplate" />
+                </keep-alive>
+                <keep-alive>
+                    <CreateTemplate v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
+                </keep-alive>
+                <keep-alive>
+                    <DeleteTemplate v-if="showDeleteTemplate" :key="idToDelete" :id="idToDelete" @emitdeletedisplay="receiveEmit" />
+                </keep-alive>
+                <keep-alive>
+                    <EditTemplate v-if="showEditTemplate" :key="idToEdit" :id="idToEdit" @emiteditdisplay="receiveEmit" />
+                </keep-alive>
+                <keep-alive>
+                    <SpecificTemplate v-if="showSpecificTemplate" :key="idToShow" :id="idToShow" />
+                </keep-alive>
             </q-page-container>
 
             <!-- Sidebar -->
@@ -109,6 +119,8 @@ export default defineComponent({
         const showHomeTemplate = ref(true);
         const router = useRouter();
         const idToDelete = ref(null);
+        const idToEdit = ref(null);
+        const idToShow = ref(null);
 
         // watch(template, () => {
         //     fetchAllTemplates();
@@ -121,6 +133,9 @@ export default defineComponent({
             showEditTemplate.value = false;
             showDeleteTemplate.value = false;
             showSpecificTemplate.value = false;
+            idToEdit.value = null;
+            idToDelete.value = null;
+            idToShow.value = null;
         }
 
         const navigateEditTo = (templateId) => {
@@ -130,6 +145,10 @@ export default defineComponent({
             showEditTemplate.value = true;
             showDeleteTemplate.value = false;
             showSpecificTemplate.value = false;
+            idToEdit.value = templateId;
+            idToDelete.value = null;
+            idToShow.value = null;
+
         };
 
         const navigateDeleteTo = (templateId) => {
@@ -138,7 +157,9 @@ export default defineComponent({
             showEditTemplate.value = false;
             showDeleteTemplate.value = true;
             showSpecificTemplate.value = false;
+            idToEdit.value = null;
             idToDelete.value = templateId;
+            idToShow.value = null;
         }
 
         const gotoSpecificTemplate = (templateId) => {
@@ -149,6 +170,9 @@ export default defineComponent({
                 showEditTemplate.value = false;
                 showDeleteTemplate.value = false;
                 showSpecificTemplate.value = true;
+                idToShow.value = templateId;
+                idToEdit.value = null;
+                idToDelete.value = null;
             } catch (error) {
                 console.error('There is some error: ', error);
             }
@@ -162,7 +186,9 @@ export default defineComponent({
             showEditTemplate,
             showSpecificTemplate,
             showDeleteTemplate,
+            idToEdit,
             idToDelete,
+            idToShow,
             showHomeTemplate,
             navigateTo,
             navigateEditTo,
@@ -282,5 +308,4 @@ export default defineComponent({
     /* Adjust the width as needed */
     min-height: 32px;
     /* Adjust the height as needed */
-}
-</style>
+}</style>
