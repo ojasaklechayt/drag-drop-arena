@@ -11,11 +11,10 @@
 
             <!-- Page Content -->
             <q-page-container>
-                <router-view></router-view>
-                <CreateTemplate v-if="showCreateTemplate || fromChild == false" @emitdisplay="receiveEmit" />
-                <EditTemplate v-if="showEditTemplate" :id="template[0]._id" />
-                <DeleteTemplate v-if="showDeleteTemplate" :id="template[0]._id" />
-                <SpecificTemplate v-if="showEditTemplate" :id="template[0]._id" />
+                <CreateTemplate v-model="showCreateTemplate" v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
+                <DeleteTemplate v-model="showDeleteTemplate" v-if="showDeleteTemplate" :id="template[0]._id" />
+                <EditTemplate v-model="showEditTemplate" v-if="showEditTemplate" :id="template[0]._id" />
+                <SpecificTemplate v-model="showSpecificTemplate" v-if="showSpecificTemplate" :id="template[0]._id" />
             </q-page-container>
 
             <!-- Sidebar -->
@@ -115,22 +114,33 @@ export default defineComponent({
             // router.push({ name: 'create-template' });
             showCreateTemplate.value = true;
             showEditTemplate.value = false;
+            showDeleteTemplate.value = false;
+            showSpecificTemplate.value = false;
         }
 
         const navigateEditTo = (templateId) => {
-            router.push({ name: 'update-template', params: { id: templateId } });
-            showEditTemplate.value = false;
+            // router.push({ name: 'update-template', params: { id: templateId } });
+            showCreateTemplate.value = false;
+            showEditTemplate.value = true;
+            showDeleteTemplate.value = false;
+            showSpecificTemplate.value = false;
         };
 
         const navigateDeleteTo = (templateId) => {
-            showDeleteTemplate.value = true;
             showCreateTemplate.value = false;
+            showEditTemplate.value = false;
+            showDeleteTemplate.value = true;
+            showSpecificTemplate.value = false;
             idToDelete.value = templateId;
         }
 
         const gotoSpecificTemplate = (templateId) => {
             try {
-                router.push({ name: 'specific-template', params: { id: templateId } });
+                // router.push({ name: 'specific-template', params: { id: templateId } });
+                showCreateTemplate.value = false;
+                showEditTemplate.value = false;
+                showDeleteTemplate.value = false;
+                showSpecificTemplate.value = true;
             } catch (error) {
                 console.error('There is some error: ', error);
             }
