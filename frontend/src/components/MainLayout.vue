@@ -4,7 +4,6 @@
       <div id="q-app" class="app-container">
         <div id="q-inner" class="inner-container">
           <div class="action-button">
-            <q-btn class="route-button" color="primary"><router-link to="/" class="button-link">Home</router-link></q-btn>
             <q-input filled v-model="text" label="Template Name"></q-input>
             <q-btn class="data-button" color="primary" @click="update_display()">Save Template</q-btn>
           </div>
@@ -12,7 +11,7 @@
             <!-- Before Splitter Content -->
             <template v-slot:before>
               <div class="content-container">
-                <div class="section-header">Before</div>
+                <div class="section-header">All Fields</div>
                 <div>
                   <draggable class="button-design" v-model="buttonData" group="people" @start="onDragStart"
                     @end="onDragEnd" item-key="id">
@@ -27,7 +26,7 @@
             <!-- After Splitter Content -->
             <template v-slot:after>
               <div class="content-container">
-                <div class="section-header">After</div>
+                <div class="section-header">Selected Fields</div>
                 <div>
                   <draggable class="button-design" v-model="reorderedButtonData" group="people" @start="onDragStart"
                     @end="onDragEnd" item-key="id">
@@ -51,7 +50,7 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
-import { QSplitter, QBtn, Notify } from 'quasar';
+import { QSplitter, QBtn, Notify, useQuasar } from 'quasar';
 import axios from 'axios';
 import draggable from 'vuedraggable';
 
@@ -64,6 +63,7 @@ export default defineComponent({
       width: '600px',
     };
 
+    const $q = useQuasar();
     const buttonData = ref([]);
     const reorderedButtonData = ref([]);
     const drag = ref(false);
@@ -75,9 +75,11 @@ export default defineComponent({
 
     const fetchAndPopulateData = async () => {
       try {
+        $q.loading.show();
         const dataResponse = await axios.get('https://drag-drop-arena-backend-mb5m.onrender.com/data/getdata');
         const data = dataResponse.data;
         buttonData.value = data;
+        $q.loading.hide();
       } catch (error) {
         console.error('Error fetching data:', error);
       }

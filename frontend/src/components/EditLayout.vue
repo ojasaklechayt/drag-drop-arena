@@ -11,7 +11,7 @@
                         <!-- Before Splitter Content -->
                         <template v-slot:before>
                             <div class="content-container">
-                                <div class="section-header">Before</div>
+                                <div class="section-header">All Fields</div>
                                 <draggable class="button-design" v-model="template.leftlabels" group="people"
                                     @start="onDragStart" @end="onDragEnd" item-key="id">
                                     <template #item="{ element: first }">
@@ -26,7 +26,7 @@
                         <!-- After Splitter Content -->
                         <template v-slot:after>
                             <div class="content-container">
-                                <div class="section-header">After</div>
+                                <div class="section-header">Selected Fields</div>
                                 <div>
                                     <draggable class="button-design" v-model="template.righttitle" group="people"
                                         @start="onDragStart" @end="onDragEnd" item-key="id">
@@ -52,7 +52,7 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
-import { QSplitter, QBtn, QInput, Notify } from 'quasar';
+import { QSplitter, QBtn, QInput, Notify, useQuasar } from 'quasar';
 import axios from 'axios';
 import draggable from 'vuedraggable';
 
@@ -62,6 +62,7 @@ export default defineComponent({
         id: String
     },
     setup(props) {
+        const $q = useQuasar();
         const splitterModel = ref(50);
         const splitterStyles = {
             height: '600px',
@@ -72,12 +73,15 @@ export default defineComponent({
         console.log(props.id);
         const fetchDataandID = async () => {
             try {
+                $q.loading.show();
                 const dataResponse = await axios({
+                    
                     method: 'get',
                     url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
                 })
                 const data = dataResponse.data;
                 template.value = data;
+                $q.loading.hide();
                 console.log(template.value);
                 console.log(template.value.leftlabels);
             } catch (error) {

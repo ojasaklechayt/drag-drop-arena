@@ -4,16 +4,15 @@
             <div id="q-app" class="app-container">
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
-                        <q-btn class="route-button" color="primary">
-                            <router-link to="/" class="button-link">Home</router-link>
-                        </q-btn>
+                        <q-chip class="template-nam" outline square color="black" text-color="white" icon="font_download">{{
+                            template.name }}</q-chip>
                         <q-btn class="button-link" color="primary" @click="exportCSV">Export CSV</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
                         <template v-slot:before>
                             <div class="content-container">
-                                <div class="section-header">Before</div>
+                                <div class="section-header">All Fields</div>
                                 <div v-for="(item, index) in template.leftlabels" :key="index">
                                     <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
                                 </div>
@@ -25,7 +24,7 @@
                         <!-- After Splitter Content -->
                         <template v-slot:after>
                             <div class="content-container">
-                                <div class="section-header">After</div>
+                                <div class="section-header">Selected Fields</div>
                                 <div>
                                     <div v-for="(item, index) in template.righttitle" :key="index">
                                         <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
@@ -42,15 +41,16 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
-import { QSplitter, QBtn, QInput } from 'quasar';
+import { QSplitter, QBtn, QInput, useQuasar } from 'quasar';
 import axios from 'axios';
 
 export default defineComponent({
-    name:'SpecificTemplate',
+    name: 'SpecificTemplate',
     props: {
         id: String
     },
     setup(props) {
+        const $q = useQuasar();
         const splitterModel = ref(50);
         const splitterStyles = {
             height: '600px',
@@ -60,14 +60,20 @@ export default defineComponent({
         const exportingdata = ref({});
         const gotresponse = ref({});
         console.log(props.id);
+
         const fetchDataandID = async () => {
             try {
+                $q.loading.show();
+
                 const dataResponse = await axios({
                     method: 'get',
                     url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
-                })
+                });
+
+
                 const data = dataResponse.data;
                 template.value = data;
+                $q.loading.hide();
                 console.log(template.value);
                 console.log(template.value.leftlabels);
             } catch (error) {
@@ -152,6 +158,7 @@ export default defineComponent({
 });
 </script>
 
+
 <style>
 .app-container {
     background-color: #f2f2f2;
@@ -214,7 +221,7 @@ export default defineComponent({
     flex-direction: row;
     justify-content: center;
     width: 600px;
-    gap: 2%;
+    gap: 5%;
     margin-bottom: 10px;
 }
 
@@ -230,5 +237,9 @@ export default defineComponent({
 .button-link {
     color: #fff;
     text-decoration: none;
+}
+
+.template-nam {
+    padding: 3%;
 }
 </style>  

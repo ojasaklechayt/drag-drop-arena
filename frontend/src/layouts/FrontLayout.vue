@@ -5,7 +5,7 @@
             <q-header elevated :class="$q.dark.isActive ? 'bg-secondary' : 'bg-black'">
                 <q-toolbar>
                     <q-btn flat @click="drawer = !drawer" round dense icon="menu"></q-btn>
-                    <q-toolbar-title>Data Templates</q-toolbar-title>
+                    <q-toolbar-title class="toolbar-title" @click="displayhome()">Data Templates</q-toolbar-title>
                 </q-toolbar>
             </q-header>
 
@@ -14,11 +14,10 @@
                 <keep-alive>
                     <HomeComponent v-if="showHomeTemplate" />
                 </keep-alive>
+                <CreateTemplate v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
                 <keep-alive>
-                    <CreateTemplate v-if="showCreateTemplate" @emitdisplay="receiveEmit" />
-                </keep-alive>
-                <keep-alive>
-                    <DeleteTemplate v-if="showDeleteTemplate" :key="idToDelete" :id="idToDelete" @emitdeletedisplay="receiveEmit" />
+                    <DeleteTemplate v-if="showDeleteTemplate" :key="idToDelete" :id="idToDelete"
+                        @emitdeletedisplay="receiveEmit" />
                 </keep-alive>
                 <keep-alive>
                     <EditTemplate v-if="showEditTemplate" :key="idToEdit" :id="idToEdit" @emiteditdisplay="receiveEmit" />
@@ -39,7 +38,8 @@
                                 <q-item v-for="(templateItem) in this.template" :key="templateItem._id">
                                     <q-item-section>
                                         <div class="template-item">
-                                            <div @click="gotoSpecificTemplate(templateItem._id)">{{ templateItem.name ?
+                                            <div class="template-name" @click="gotoSpecificTemplate(templateItem._id)">{{
+                                                templateItem.name ?
                                                 templateItem.name : "No Name" }}</div>
                                             <div class="template-buttons">
                                                 <q-btn color="red" dense @click="navigateDeleteTo(templateItem._id)">
@@ -151,6 +151,14 @@ export default defineComponent({
 
         };
 
+        const displayhome = () => {
+            showHomeTemplate.value = true;
+            showCreateTemplate.value = false;
+            showEditTemplate.value = false;
+            showDeleteTemplate.value = false;
+            showSpecificTemplate.value = false;
+        };
+
         const navigateDeleteTo = (templateId) => {
             showHomeTemplate.value = false;
             showCreateTemplate.value = false;
@@ -194,6 +202,7 @@ export default defineComponent({
             navigateEditTo,
             navigateDeleteTo,
             gotoSpecificTemplate,
+            displayhome
         };
     },
     methods: {
@@ -287,6 +296,13 @@ export default defineComponent({
     gap: 8px;
 }
 
+.template-name {
+    padding-right: 60%;
+    padding-top: 6%;
+    padding-bottom: 6%;
+    text-align: left;
+}
+
 .template-button {
     width: 30px;
     height: 30px;
@@ -305,7 +321,10 @@ export default defineComponent({
 /* Adjust the size of the delete and edit buttons */
 .template-buttons q-btn {
     min-width: 32px;
-    /* Adjust the width as needed */
     min-height: 32px;
-    /* Adjust the height as needed */
-}</style>
+}
+
+.toolbar-title{
+    cursor: pointer;
+}
+</style>

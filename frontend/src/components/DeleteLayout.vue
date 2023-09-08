@@ -4,17 +4,14 @@
             <div id="q-app" class="app-container">
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
-                        <q-btn class="route-button" color="primary">
-                            <router-link to="/" class="button-link">Home</router-link>
-                        </q-btn>
-                        <q-btn class="button-link" color="primary" @click="this.showDeleteConfirmation = true">Delete
+                        <q-btn class="button-link" color="negative" @click="this.showDeleteConfirmation = true">Delete
                             Template</q-btn>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
                         <template v-slot:before>
                             <div class="content-container">
-                                <div class="section-header">Before</div>
+                                <div class="section-header">All Fields</div>
                                 <div v-for="(item, index) in this.template.leftlabels" :key="index">
                                     <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
                                 </div>
@@ -24,7 +21,7 @@
                         <!-- After Splitter Content -->
                         <template v-slot:after>
                             <div class="content-container">
-                                <div class="section-header">After</div>
+                                <div class="section-header">Selected Fields</div>
                                 <div>
                                     <div v-for="(item, index) in this.template.righttitle" :key="index">
                                         <q-btn class="nested-button" color="primary" dense square>{{ item }}</q-btn>
@@ -58,6 +55,7 @@
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
 import axios from 'axios';
+import { Notify, useQuasar } from 'quasar';
 
 export default defineComponent({
     name: 'DeleteTemplate',
@@ -88,12 +86,15 @@ export default defineComponent({
     methods: {
         async fetchDataandID() {
             try {
+                const $q = useQuasar();
+                $q.loading.show({});
                 const dataResponse = await axios({
                     method: 'get',
                     url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${this.props.id}`,
                 });
                 const data = dataResponse.data;
                 this.template = data;
+                $q.loading.hide();
                 console.log(this.template);
                 console.log(this.template.leftlabels);
             } catch (error) {
@@ -104,6 +105,7 @@ export default defineComponent({
             try {
                 await axios.delete(`https://drag-drop-arena-backend-mb5m.onrender.com/templates/${this.props.id}`);
                 this.showDeleteConfirmation = false;
+                Notify.create({ message: 'Template deleted successfully!!', progress: true })
 
             } catch (error) {
                 console.error('Error deleting template:', error);
