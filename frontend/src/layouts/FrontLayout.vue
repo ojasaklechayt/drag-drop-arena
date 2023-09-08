@@ -39,8 +39,8 @@
                                     <q-item-section>
                                         <div class="template-item">
                                             <div class="template-name" @click="gotoSpecificTemplate(templateItem._id)">{{
-                                                templateItem.name ?
-                                                templateItem.name : "No Name" }}</div>
+                                                    templateItem.name.length > 20 ? templateItem.name.slice(0, 20) + "..." :
+                                                    (templateItem.name || "No Name") }}</div>
                                             <div class="template-buttons">
                                                 <q-btn color="red" dense @click="navigateDeleteTo(templateItem._id)">
                                                     <font-awesome-icon icon="trash" class="template-icon" />
@@ -297,10 +297,10 @@ export default defineComponent({
 }
 
 .template-name {
-    padding-right: 60%;
     padding-top: 6%;
     padding-bottom: 6%;
     text-align: left;
+    font-size: 0.8rem;
 }
 
 .template-button {
@@ -324,7 +324,7 @@ export default defineComponent({
     min-height: 32px;
 }
 
-.toolbar-title{
+.toolbar-title {
     cursor: pointer;
 }
 </style>

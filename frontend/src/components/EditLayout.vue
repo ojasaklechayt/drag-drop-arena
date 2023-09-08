@@ -5,7 +5,7 @@
                 <div id="q-inner" class="inner-container">
                     <div class="action-button">
                         <q-btn class="button-link" color="primary" @click="edit_display()">Save Template</q-btn>
-                        <q-input filled v-model="template.name" :label="template.name"></q-input>
+                        <q-input filled v-model="template.name" label='New Template Name'></q-input>
                     </div>
                     <q-splitter class="splitter" v-model="splitterModel" :style="splitterStyles">
                         <!-- Before Splitter Content -->
@@ -34,9 +34,9 @@
                                             <div
                                                 style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;">
                                                 <q-input class="nested-input" label-color="white" sm bg-color="primary"
-                                                    cursor-pointer color="white" square outlined v-model="template.rightlabels
-                                                    [index]" :label="second"
-                                                    style="width:200px; height: 30px; text-align: center;"></q-input>
+                                                    cursor-pointer color="white" square outlined
+                                                    v-model="template.rightlabels[index]" :label="second"
+                                                    style="width: 200px; height: 30px; text-align: center;"></q-input>
                                             </div>
                                         </template>
                                     </draggable>
@@ -75,7 +75,7 @@ export default defineComponent({
             try {
                 $q.loading.show();
                 const dataResponse = await axios({
-                    
+
                     method: 'get',
                     url: `https://drag-drop-arena-backend-mb5m.onrender.com/templates/${props.id}`,
                 })

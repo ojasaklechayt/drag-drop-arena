@@ -4,20 +4,15 @@ const createTemplate = async (req, res) => {
     try {
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
         const lowerCaseName = name.toLowerCase();
-
         const existingTemplate = await Template.findOne({ name: lowerCaseName });
-
         if (existingTemplate) {
             return res.status(422).json({ message: "Template with the same name already exists" });
         }
-
         const newTemplate = new Template({ name, leftlabels, rightdata, rightlabels, righttitle });
         await newTemplate.save();
-
         res.status(201).json({ message: "Template Saved Successfully", template: newTemplate });
     } catch (error) {
         console.error("Error creating template:", error);
-
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
@@ -28,7 +23,7 @@ module.exports = { createTemplate };
 
 const getAllTemplates = async (req, res) => {
     try {
-        const templates = await Template.find();
+        const templates = await Template.find().lean();
         res.status(200).json(templates);
     } catch (error) {
         console.error("Error getting all templates:", error);
@@ -39,7 +34,7 @@ const getAllTemplates = async (req, res) => {
 const getSpecificTemplate = async (req, res) => {
     try {
         const templateId = req.params.id;
-        const template = await Template.findById(templateId)
+        const template = await Template.findById(templateId).lean();
         if (!template) {
             return res.status(404).send('Template not found');
         }
@@ -55,15 +50,12 @@ const updateTemplate = async (req, res) => {
         const templateId = req.params.id;
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
         const lowerCaseName = name.toLowerCase();
-
-        // Check if a template with the same name already exists
         const existingTemplate = await Template.findOne({ name: lowerCaseName });
 
         if (existingTemplate && existingTemplate._id.toString() !== templateId) {
             return res.status(422).json({ message: "Template with the same name already exists" });
         }
 
-        // Update the template
         const updatedTemplate = await Template.findByIdAndUpdate(
             templateId,
             { name, leftlabels, rightdata, rightlabels, righttitle },
