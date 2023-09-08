@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const compression = require('compression');
 const dataRouter = require('./routes/data-router');
 const templateRouter = require('./routes/template-router');
 
@@ -27,7 +28,8 @@ main();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
-app.use(cors())
+app.use(cors());
+app.use(compression());
 
 app.use("/data",cors(), dataRouter);
 app.use('/',cors(), templateRouter);
