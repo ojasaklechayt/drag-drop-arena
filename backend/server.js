@@ -1,9 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const env = require('dotenv').config();
+const dotenv = require('dotenv');
 const dataRouter = require('./routes/data-router');
 const templateRouter = require('./routes/template-router');
+
+dotenv.config();
 const app = express();
 const port = 3000;
 
@@ -24,6 +26,7 @@ async function main() {
 main();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 app.use(cors())
 
 app.use("/data",cors(), dataRouter);

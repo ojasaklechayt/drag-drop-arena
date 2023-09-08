@@ -4,7 +4,7 @@ const createTemplate = async (req, res) => {
     try {
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
         const lowerCaseName = name.toLowerCase();
-        const existingTemplate = await Template.findOne({ name: lowerCaseName });
+        const existingTemplate = await Template.findOne({ name: lowerCaseName }).lean();
         if (existingTemplate) {
             return res.status(422).json({ message: "Template with the same name already exists" });
         }
@@ -50,7 +50,7 @@ const updateTemplate = async (req, res) => {
         const templateId = req.params.id;
         const { name, leftlabels, rightdata, rightlabels, righttitle } = req.body;
         const lowerCaseName = name.toLowerCase();
-        const existingTemplate = await Template.findOne({ name: lowerCaseName });
+        const existingTemplate = await Template.findOne({ name: lowerCaseName }).lean();
 
         if (existingTemplate && existingTemplate._id.toString() !== templateId) {
             return res.status(422).json({ message: "Template with the same name already exists" });
@@ -60,7 +60,7 @@ const updateTemplate = async (req, res) => {
             templateId,
             { name, leftlabels, rightdata, rightlabels, righttitle },
             { new: true }
-        );
+        ).lean();
 
         if (!updatedTemplate) {
             return res.status(404).send('Template not found');
@@ -78,7 +78,7 @@ const deleteTemplate = async (req, res) => {
     try {
         const templateId = req.params.id;
 
-        const deletedTemplate = await Template.findByIdAndDelete(templateId);
+        const deletedTemplate = await Template.findByIdAndDelete(templateId).lean();
         if (!deletedTemplate) {
             return res.status(404).send('Template not found');
         }
